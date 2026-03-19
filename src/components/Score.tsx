@@ -2,12 +2,13 @@ import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 
 interface Props {
+  words: string[];
   restartGame: () => void;
   resetGame: () => void;
 }
 
-const Score = ({ restartGame, resetGame } : Props) => {
-  const { gameState, score, wordsSolved, setGameState } = useContext(AppContext);
+const Score = ({ restartGame, resetGame, words } : Props) => {
+  const { gameState, score, wordsSolved } = useContext(AppContext);
 
   return (
 
@@ -50,13 +51,13 @@ const Score = ({ restartGame, resetGame } : Props) => {
                   <div className="w-[1px] bg-white/5" />
                   <div className="text-center">
                     <span className="text-[9px] text-gray-500 font-bold tracking-widest uppercase block">Solved</span>
-                    <span className="text-xl font-bold text-teal-400">{wordsSolved}</span>
+                    <span className="text-xl font-bold text-teal-400">{wordsSolved + "/" + words.length}</span>
                   </div>
-                  <div className="w-[1px] bg-white/5" />
+                  {/* <div className="w-[1px] bg-white/5" />
                   <div className="text-center">
                     <span className="text-[9px] text-gray-500 font-bold tracking-widest uppercase block">Rank</span>
                     <span className="text-xl font-bold text-teal-400">Elite</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -178,7 +178,8 @@ function App() {
     setTimer(24);
     setInputValue("");
     setGameState('START');
-    setWordsSolved(0)
+    setWordsSolved(0);
+    setIndex(0);
   }
 
   const restartGame = () => {
@@ -287,50 +288,77 @@ function App() {
                   </div>
 
                   {/* Main Interface */}
-                  <div className={`bg-[#1A1D23] rounded-[2.5rem] p-8 shadow-2xl border border-white/5 ${loading ? 'opacity-50' : 'opacity-100'}`}>
-                    {/* Scrambled Word Area */}
-                    <div className="flex justify-center gap-3 mb-10">
-                      {wordsCount > 0 && shuffledWord.split('').map((letter, i) => (
-                        <div key={i} className="w-14 h-16 bg-[#252932] rounded-2xl flex items-center justify-center text-3xl font-black text-teal-400 shadow-inner border border-white/5 uppercase">
-                          {letter}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Interaction Bar */}
-                    <div className="flex gap-2 mb-6">
-                      <button className="flex-1 py-3 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
-                        onClick={() => setShuffledWord(shuffleWord(shuffledWord))}
+                  <div className={`bg-[#1A1D23] rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/5 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+                    
+                    
+                  <div className={`grid justify-center gap-2 mb-8 ${
+                    shuffledWord.length > 8 ? 'grid-cols-5' : 'grid-cols-4' 
+                  } sm:flex sm:flex-wrap sm:justify-center`}>
+                    {wordsCount > 0 && shuffledWord.split('').map((letter, i) => (
+                      <div 
+                        key={i} 
+                        className={`
+                          flex items-center justify-center font-black text-teal-400 uppercase
+                          bg-[#252932] rounded-xl border border-white/5 shadow-inner
+                          transition-all duration-200
+                          ${shuffledWord.length > 6 
+                            ? 'w-10 h-12 text-xl sm:w-12 sm:h-14 sm:text-2xl' 
+                            : 'w-14 h-16 text-3xl'}
+                        `}
                       >
-                        Shuffle
-                      </button>
-                      <button className="flex-1 py-3 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase text-gray-400"
-                        onClick={skipWord}
-                      >
-                        Skip
-                      </button>
-                    </div>
+                        {letter}
+                      </div>
+                    ))}
+                  </div>
 
+                  {/* Interaction & Input Container */}
+                  <div className="space-y-6">
                     {/* Input: Massive & Focused */}
                     <div className="relative group">
                       <input 
                         type="text" 
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        className={`w-full uppercase bg-transparent border-b-2 border-gray-800 py-4 text-center text-4xl ${!correctAnswer ? "text-red-500" : ""} font-black outline-none focus:border-teal-400 transition-colors tracking-widest placeholder:text-gray-800`}
-                        placeholder="----"
+                        className={`
+                          w-full uppercase bg-transparent border-b-2 border-gray-800 py-4 text-center 
+                          font-black outline-none focus:border-teal-400 transition-colors tracking-widest 
+                          placeholder:text-gray-800
+                          ${shuffledWord.length > 8 ? 'text-2xl' : 'text-4xl'}
+                          ${!correctAnswer ? "text-red-500" : "text-white"}
+                        `}
+                        placeholder="TYPE HERE"
                         autoFocus
                       />
                       <div className="absolute inset-x-0 bottom-0 h-[2px] bg-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
                     </div>
 
-                    <button className="w-full py-5 mt-10 bg-[#255f6f] hover:bg-[#2d7386] text-white font-black rounded-2xl transition-all shadow-lg shadow-teal-900/20 uppercase tracking-widest text-sm"
-                      onClick={handleSubmit}
-                      disabled={loading || inputValue.length === 0}
-                    >
-                      Submit Answer
-                    </button>
+                    {/* Controls Row */}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex flex-1 gap-2">
+                        <button 
+                          className="flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
+                          onClick={() => setShuffledWord(shuffleWord(shuffledWord))}
+                        >
+                          Shuffle
+                        </button>
+                        <button 
+                          className="flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase text-gray-400"
+                          onClick={skipWord}
+                        >
+                          Skip
+                        </button>
+                      </div>
+                      
+                      <button 
+                        className="flex-[1.5] py-4 bg-[#255f6f] hover:bg-[#2d7386] disabled:bg-gray-800 disabled:text-gray-600 text-white font-black rounded-xl transition-all shadow-lg shadow-teal-900/20 uppercase tracking-widest text-sm"
+                        onClick={handleSubmit}
+                        disabled={loading || inputValue.length === 0}
+                      >
+                        Submit
+                      </button>
+                    </div>
                   </div>
+                </div>
                   
                   <button 
                     onClick={reset}
@@ -345,6 +373,7 @@ function App() {
           <div className="space-y-6 text-center">
             <Header />
             <Score 
+              words={words}
               restartGame={restartGame}
               resetGame={reset}
             />
