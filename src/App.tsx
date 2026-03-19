@@ -4,6 +4,7 @@ import { DIFFICULTY_LIST } from './constant/difficulty';
 import Score from './components/Score';
 import Header from './section/Header';
 import { yatesFisherSort } from './utils/yatesFisherSort';
+import Tooltip from './components/Tooltip';
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -23,6 +24,10 @@ function App() {
     index, setIndex,
   } = useContext(AppContext);
   
+  // points based on difficulty
+  const points = difficulty === 'EASY' ? 10 : difficulty === 'MEDIUM' ? 50 : 100;
+
+
   // unscramble words function
   const shuffleWord = useCallback((item: string) => {
     // if word is empty or 1 char, return
@@ -139,7 +144,6 @@ function App() {
   // Handle Answer Submission
   const handleSubmit = () => {
     const isCorrect = inputValue.trim().toLowerCase() === word?.toLowerCase();
-    const points = difficulty === 'EASY' ? 10 : difficulty === 'MEDIUM' ? 50 : 100;
 
     if (isCorrect) {
       setScore(prev => Math.max(prev + points, 0));
@@ -162,7 +166,7 @@ function App() {
 
     } else {
       // Wrong answer logic
-      setScore(prev => Math.max(prev - points, 0));
+      // setScore(prev => Math.max(prev - points, 0));
       setCorrectAnswer(false)
       
       setTimeout(() => {
@@ -185,6 +189,7 @@ function App() {
   const restartGame = () => {
     setScore(0);
     setWordsSolved(0);
+    setInputValue("");
     setGameState('PLAYING');
     setWordsCount(5);
     setIndex(0);
@@ -226,7 +231,9 @@ function App() {
                         }
                       >
                         {level.name}
-                        <span className='hidden group-hover:block absolute -left-10 top-10 bg-black text-white font-light text-[10px] rounded-lg p-2 text-start'>{level.description}</span>
+                        <Tooltip
+                          description={level.description}
+                        />
                       </button>
                     ))}
                   </div>
@@ -269,17 +276,30 @@ function App() {
             <Header />
               
               {loading ?
-                <div className='w-full h-full absolute flex justify-center items-center left-0 top-0 bg-[#0F1115] font-black italic z-[100]'><span>Loading...</span></div> :
+                <div className="flex flex-col items-center justify-center bg-[#0F1115] overflow-hidden">
+                  {/* Ambient Background Glow */}
+                  <div className="bg-teal-500/10 rounded-full blur-[120px] animate-pulse" />
+
+                  <div className="relative flex flex-col items-center">
+                    {/* Animated Icon/Graphic */}
+                    <div className="flex justify-center gap-4 mb-8 relative">
+                      <div className="size-5 border-t-2 border-r-2 border-teal-400 rounded-full animate-spin" />
+                      <span className="text-sm font-black italic tracking-[0.3em] text-white uppercase animate-pulse">
+                        Loading
+                      </span>
+                    </div>
+                  </div>
+                </div> :
                 <> 
                   {/* Score & Timer HUD */}
                   <div className="flex justify-between items-center px-2">
-                    <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase">
+                    <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
                         Score // <span className="text-white">{score}</span>
                     </div>
-                    <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase">
+                    <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
                         Count // <span className="text-white">{`${index + 1}/${words?.length}`}</span>
                     </div>
-                    <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase">
+                    <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
                         Level // <span className="text-white">{difficulty}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
@@ -290,7 +310,7 @@ function App() {
                   {/* Main Interface */}
                   <div className={`bg-[#1A1D23] rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/5 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
                     
-                    
+
                   <div className={`grid justify-center gap-2 mb-8 ${
                     shuffledWord.length > 8 ? 'grid-cols-5' : 'grid-cols-4' 
                   } sm:flex sm:flex-wrap sm:justify-center`}>
@@ -326,7 +346,7 @@ function App() {
                           ${shuffledWord.length > 8 ? 'text-2xl' : 'text-4xl'}
                           ${!correctAnswer ? "text-red-500" : "text-white"}
                         `}
-                        placeholder="TYPE HERE"
+                        placeholder="_ _ _ _"
                         autoFocus
                       />
                       <div className="absolute inset-x-0 bottom-0 h-[2px] bg-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
@@ -336,16 +356,24 @@ function App() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="flex flex-1 gap-2">
                         <button 
-                          className="flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
+                          className="relative group flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
                           onClick={() => setShuffledWord(shuffleWord(shuffledWord))}
                         >
                           Shuffle
+                          
+                          <Tooltip
+                            description={"Reshuffle the letters for a fresh perspective"}
+                          />
                         </button>
                         <button 
-                          className="flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase text-gray-400"
+                          className="relative group flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase text-gray-400"
                           onClick={skipWord}
                         >
                           Skip
+                          
+                          <Tooltip
+                            description={`Give up on this word and move to the next one (Penalty: -${points} points)`}
+                          />
                         </button>
                       </div>
                       
