@@ -1,8 +1,13 @@
 import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 
-const Score = () => {
-  const { gameState, score, wordsSolved, resetGame, setGameState } = useContext(AppContext);
+interface Props {
+  restartGame: () => void;
+  resetGame: () => void;
+}
+
+const Score = ({ restartGame, resetGame } : Props) => {
+  const { gameState, score, wordsSolved, setGameState } = useContext(AppContext);
 
   return (
 
@@ -59,13 +64,13 @@ const Score = () => {
             {/* Action Buttons */}
             <div className="space-y-3">
               <button 
-                onClick={resetGame}
+                onClick={restartGame}
                 className="w-full py-5 bg-white text-black font-black text-sm rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest"
               >
                 Restart Session
               </button>
               <button 
-                onClick={() => setGameState('START')}
+                onClick={resetGame}
                 className="w-full py-5 bg-[#252932] text-white font-black text-sm rounded-2xl border border-white/5 hover:bg-[#2e333d] transition-all uppercase tracking-widest"
               >
                 Exit to Menu
