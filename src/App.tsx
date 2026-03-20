@@ -5,28 +5,37 @@ import Score from './components/Score';
 import Header from './section/Header';
 import { yatesFisherSort } from './utils/yatesFisherSort';
 import Tooltip from './components/Tooltip';
+import { CheckCircle2, ScrollText, X } from 'lucide-react';
+import { RULES } from './constant/rules';
 
 function App() {
-  const [inputValue, setInputValue] = useState("");
-  const [words, setWords] = useState<string[]>([]);
-  const [word, setWord] = useState<string | undefined>("");
-  const [shuffledWord, setShuffledWord] = useState<string>("");
-  const [correctAnswer, setCorrectAnswer] = useState<boolean>(true);
-  const [timer, setTimer] = useState(24);
-  const [loading, setLoading] = useState(false);
-
+  // global states
   const {
     score, setScore,
     gameState, setGameState,
-    wordsSolved, setWordsSolved,
+    setWordsSolved,
     difficulty, setDifficulty,
     wordsCount, setWordsCount,
     index, setIndex,
   } = useContext(AppContext);
+
+  // local states
+  const [inputValue, setInputValue] = useState("");
+  const [words, setWords] = useState<string[]>([]);
+  const [word, setWord] = useState<string | undefined>("");
+  const [shuffledWord, setShuffledWord] = useState<string>("");
+  const [correctAnswer, setCorrectAnswer] = useState<number>(0);
+  const [timer, setTimer] = useState(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
+  const [loading, setLoading] = useState(false);
+  const [showRules, setShowRules] = useState<boolean>(false)
+  const [error, setError] = useState<unknown>();
+
+  if (error) {
+    throw error;
+  }
   
   // points based on difficulty
-  const points = difficulty === 'EASY' ? 10 : difficulty === 'MEDIUM' ? 50 : 100;
-
+  const pointsToAdd = difficulty == 'EASY' ? 100 : difficulty == 'MEDIUM' ? 500 : 1000;
 
   // unscramble words function
   const shuffleWord = useCallback((item: string) => {
@@ -68,14 +77,16 @@ function App() {
       setLoading(true);
       try {
         const response = await fetch(`https://random-word-api.herokuapp.com/word?number=${wordsCount}&${urlAddon}`);
+        if (!response.ok) throw new Error('Failed to fetch words');
         const data = await response.json();
-        console.log(data)
+        // console.log(data)
         setWords(data);
         setWord(data[0]);
         setShuffledWord(shuffleWord(data[0] ?? ""));
 
-      } catch (error) {
+      } catch (err: unknown) {
         console.error('Error fetching word:', error);
+        setError(err)
         setWords([]); // Fallback word list
       } finally {
         setLoading(false);
@@ -91,12 +102,15 @@ function App() {
     setIndex(prev => prev + 1);
   }
 
-
   // skip word function
   const skipWord = () => {
-    setTimer(24);
+    setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
     setInputValue("");
-    setScore(prev => Math.max(prev - (difficulty === 'EASY' ? 10 : difficulty === 'MEDIUM' ? 50 : 100), 0)); // Penalty for skipping
+
+    // Penalty for skipping on Hard Level
+    if (difficulty === "HARD") {
+      setScore(prev => Math.max(prev - 1000, 0)); 
+    }
     setWordsCount(prev => prev - 1); // Reduce total word count
       
     // Check if the game should end
@@ -118,7 +132,7 @@ function App() {
 
   // Countdown Timer Logic
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: number;
 
     if (gameState === 'PLAYING' && !loading) {
       interval = setInterval(() => {
@@ -141,16 +155,26 @@ function App() {
     }
   }, [timer, wordsCount, gameState]);
 
+  // disable scrollbar when rules is open
+  useEffect(() => {
+    if (showRules) {
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showRules])
+
   // Handle Answer Submission
   const handleSubmit = () => {
     const isCorrect = inputValue.trim().toLowerCase() === word?.toLowerCase();
 
     if (isCorrect) {
-      setScore(prev => Math.max(prev + points, 0));
-      
-      setInputValue("");
-      setTimer(24);
+      setScore(prev => Math.max(prev + pointsToAdd, 0));
+      setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
       setWordsSolved(prev => prev + 1);
+      setCorrectAnswer(1);
 
       // Determine if we should finish or continue
       // Use the functional update value or the index to decide
@@ -160,18 +184,24 @@ function App() {
       if (nextCount <= 0 || index === words.length - 1) {
         setGameState('FINISHED');
         setWordsCount(5); // Reset for next session
+        setCorrectAnswer(0)
       } else {
-        loadNextWord();
+        // load next word after 500ms
+        setTimeout(() => {
+          setInputValue("");
+          setCorrectAnswer(0);
+          loadNextWord();
+        }, 500);
       }
 
     } else {
       // Wrong answer logic
       // setScore(prev => Math.max(prev - points, 0));
-      setCorrectAnswer(false)
+      setCorrectAnswer(2)
       
       setTimeout(() => {
         setInputValue(""); 
-        setCorrectAnswer(true);
+        setCorrectAnswer(0);
       }, 500);
     }
   };
@@ -184,6 +214,7 @@ function App() {
     setGameState('START');
     setWordsSolved(0);
     setIndex(0);
+    setCorrectAnswer(0)
   }
 
   const restartGame = () => {
@@ -193,6 +224,7 @@ function App() {
     setGameState('PLAYING');
     setWordsCount(5);
     setIndex(0);
+    setCorrectAnswer(0)
   }
 
   return (
@@ -207,33 +239,37 @@ function App() {
       <main className="relative z-10 w-full flex items-center justify-center max-w-md">
         {gameState === 'START' ? (
           <div className="space-y-10 text-center">
-            <Header/>
+              <Header />
 
-            <div className="space-y-6">
-              <p className="text-gray-500 tracking-[0.3em] text-[10px] uppercase font-bold">
-                Unscramble the word before time runs out
-              </p>
-
-              <div className='flex flex-col divide-y-[1px] divide-white/5 bg-[#1A1D23] rounded-[2.5rem] p-6 shadow-2xl border border-white/5'>
+              <div className='relative flex flex-col divide-y divide-white/5 bg-[#1A1D23] rounded-[2.5rem] p-6 shadow-2xl border border-white/5'>
+                {/* Rules Trigger Button */}
+                <button 
+                  onClick={() => setShowRules(true)}
+                  className="group absolute -right-4 -top-4 size-10 flex justify-center items-center py-5 border-teal-400 text-teal-400 bg-teal-400/10 shadow-[0_0_15px_rgba(45,212,191,0.2)] text-lg rounded-full hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  <ScrollText />
+                  <Tooltip 
+                    description='Rules'
+                  />
+                </button>
+                
                 {/* Difficulty Selection */}
                 <div className="flex flex-col items-center gap-3 py-10">
-                  <span className="text-[9px] text-gray-600 text-teal-600 tracking-widest uppercase font-bold">Difficulty level</span>
+                  <span className="text-[9px] text-teal-600 tracking-widest uppercase font-bold">Difficulty level</span>
                   <div className="flex justify-center gap-3">
                     {DIFFICULTY_LIST.map((level) => (
                       <button
                         key={level.name}
                         onClick={() => setDifficulty(level.name)}
-                        className={`group relative text-sm font-black tracking-widest px-4 py-1.5 rounded-full border transition-all ${
+                        className={`group relative text-xs font-black tracking-widest px-4 py-1.5 uppercase rounded-full border transition-all ${
                           difficulty === level.name 
                             ? 'border-teal-400 text-teal-400 bg-teal-400/10 shadow-[0_0_15px_rgba(45,212,191,0.2)]' 
                             : 'border-white/10 text-gray-600 hover:border-white/20'
                           }`
                         }
                       >
-                        {level.name}
-                        <Tooltip
-                          description={level.description}
-                        />
+                        {level.title}
+                        <Tooltip description={level.description} />
                       </button>
                     ))}
                   </div>
@@ -241,19 +277,17 @@ function App() {
 
                 {/* Word Count Selection */}
                 <div className="flex flex-col items-center gap-3 py-10">
-                  <span className="text-[9px] text-gray-600 text-teal-600 tracking-widest uppercase font-bold">Word Count</span>
+                  <span className="text-[9px] text-teal-600 tracking-widest uppercase font-bold">Word Count</span>
                   <div className="flex justify-center gap-3">
                     {[5, 10, 20, 50].map((count) => (
                       <button
                         key={count}
                         onClick={() => setWordsCount(count)}
-                        className={
-                          `text-sm font-black tracking-widest px-4 py-1.5 rounded-full border transition-all ${
-                            wordsCount === count 
-                              ? 'border-teal-400 text-teal-400 bg-teal-400/10 shadow-[0_0_15px_rgba(45,212,191,0.2)]' 
-                              : 'border-white/10 text-gray-600 hover:border-white/20'
-                          }`
-                        }
+                        className={`text-xs font-black tracking-widest px-4 py-1.5 rounded-full border transition-all ${
+                          wordsCount === count 
+                            ? 'border-teal-400 text-teal-400 bg-teal-400/10 shadow-[0_0_15px_rgba(45,212,191,0.2)]' 
+                            : 'border-white/10 text-gray-600 hover:border-white/20'
+                        }`}
                       >
                         {count}
                       </button>
@@ -261,15 +295,59 @@ function App() {
                   </div>
                 </div>
               </div>
-            </div>
+              
+              <button 
+                onClick={() => setGameState('PLAYING')}
+                className="w-full py-5 bg-white text-black font-black text-lg rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                START GAME
+              </button>
 
-            <button 
-              onClick={() => setGameState('PLAYING')}
-              className="w-full py-5 bg-white text-black font-black text-lg rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-95 transition-all"
-            >
-              START GAME
-            </button>
-          </div>
+              {/* RULES MODAL OVERLAY */}
+              {showRules && (
+                <div className="fixed inset-0 z-200 flex items-center justify-center p-6 backdrop-blur-md bg-black/60 animate-in fade-in duration-300">
+                  <div className="relative w-full max-w-sm bg-[#1A1D23] border border-white/10 rounded-[2.5rem] p-8 shadow-3xl animate-in zoom-in-95 duration-300">
+                    
+                    <button 
+                      onClick={() => setShowRules(false)}
+                      className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+
+                    <div className="text-left space-y-4">
+                      <div className="space-y-1">
+                        <h2 className="text-2xl font-black italic uppercase tracking-tighter">The Rules</h2>
+                        <div className="h-1 w-12 bg-teal-400 rounded-full" />
+                      </div>
+
+                      <div className='max-h-[50vh] overflow-y-scroll 
+                        [&::-webkit-scrollbar]:w-1
+                      [&::-webkit-scrollbar-track]:bg-[#1A1D23]
+                      [&::-webkit-scrollbar-thumb]:bg-teal-500/20
+                        [&::-webkit-scrollbar-thumb]:rounded-full
+                      hover:[&::-webkit-scrollbar-thumb]:bg-teal-500/50'>
+                        <ul className="space-y-4 py-4">
+                          {RULES.map((rule, index) => (
+                            <li key={index} className="flex gap-3 text-sm text-gray-400 leading-relaxed">
+                              <CheckCircle2 size={18} className="text-teal-400 shrink-0 mt-0.5" />
+                              {rule}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <button 
+                        onClick={() => setShowRules(false)}
+                        className="w-full py-4 bg-[#252932] hover:bg-teal-400/10 hover:text-teal-400 border border-white/5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
+                      >
+                        Got it
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
         ) : gameState === 'PLAYING' ? (
           <div className="space-y-6 text-center">
@@ -303,7 +381,7 @@ function App() {
                         Level // <span className="text-white">{difficulty}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Timer // <span className="text-white">00:{timer < 10 ? `0${timer}` : timer}</span>
+                        Timer // <span className="text-white">{`${timer > 59 ? "01:00" : `00:${timer < 10 ? `0${timer}` : timer}`}`}</span>
                     </div>
                   </div>
 
@@ -344,12 +422,12 @@ function App() {
                           font-black outline-none focus:border-teal-400 transition-colors tracking-widest 
                           placeholder:text-gray-800
                           ${shuffledWord.length > 8 ? 'text-2xl' : 'text-4xl'}
-                          ${!correctAnswer ? "text-red-500" : "text-white"}
+                          ${correctAnswer == 2 ? "text-red-500" : correctAnswer == 1 ? "text-green-500" : "text-white"}
                         `}
                         placeholder="_ _ _ _"
                         autoFocus
                       />
-                      <div className="absolute inset-x-0 bottom-0 h-[2px] bg-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
+                      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
                     </div>
 
                     {/* Controls Row */}
@@ -372,7 +450,7 @@ function App() {
                           Skip
                           
                           <Tooltip
-                            description={`Give up on this word and move to the next one (Penalty: -${points} points)`}
+                            description={`Give up on this word and move to the next one. ${difficulty === "HARD" ? `(Penalty: - ${pointsToAdd} points)` : ""}`}
                           />
                         </button>
                       </div>
