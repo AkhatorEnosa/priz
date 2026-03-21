@@ -228,8 +228,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1115] flex items-center justify-center p-6 font-sans text-white">
-      
+    <div className="min-h-screen bg-[#0F1115] flex flex-col items-center justify-center p-6 font-sans text-white">
+      <Header />
       {/* Mesh Gradient Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-40">
         <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#255f6f] blur-[120px] rounded-full" />
@@ -239,9 +239,7 @@ function App() {
       <main className="relative z-10 w-full flex items-center justify-center max-w-md">
         {gameState === 'START' ? (
           <div className="space-y-10 text-center">
-              <Header />
-
-              <div className='relative flex flex-col divide-y divide-white/5 bg-[#1A1D23] rounded-[2.5rem] p-6 shadow-2xl border border-white/5'>
+              <div className='w-full relative flex flex-col divide-y divide-white/5 bg-[#1A1D23] rounded-[2.5rem] p-6 shadow-2xl border border-white/5'>
                 {/* Rules Trigger Button */}
                 <button 
                   onClick={() => setShowRules(true)}
@@ -256,7 +254,7 @@ function App() {
                 {/* Difficulty Selection */}
                 <div className="flex flex-col items-center gap-3 py-10">
                   <span className="text-[9px] text-teal-600 tracking-widest uppercase font-bold">Difficulty level</span>
-                  <div className="flex justify-center gap-3">
+                  <div className="grid grid-2 md:grid-3 justify-center gap-3">
                     {DIFFICULTY_LIST.map((level) => (
                       <button
                         key={level.name}
@@ -351,10 +349,8 @@ function App() {
 
         ) : gameState === 'PLAYING' ? (
           <div className="space-y-6 text-center">
-            <Header />
-              
               {loading ?
-                <div className="flex flex-col items-center justify-center bg-[#0F1115] overflow-hidden">
+                <div className="h-[65vh] flex flex-col items-center justify-center bg-[#0F1115] overflow-hidden">
                   {/* Ambient Background Glow */}
                   <div className="bg-teal-500/10 rounded-full blur-[120px] animate-pulse" />
 
@@ -370,18 +366,18 @@ function App() {
                 </div> :
                 <> 
                   {/* Score & Timer HUD */}
-                  <div className="flex justify-between items-center px-2">
+                  <div className="flex justify-center items-center gap-4 flex-wrap">
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Score // <span className="text-white">{score}</span>
+                        Score <span className="text-white">{score}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Count // <span className="text-white">{`${index + 1}/${words?.length}`}</span>
+                        Count <span className="text-white">{`${index + 1}/${words?.length}`}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Level // <span className="text-white">{difficulty}</span>
+                        Level <span className="text-white">{difficulty}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Timer // <span className="text-white">{`${timer > 59 ? "01:00" : `00:${timer < 10 ? `0${timer}` : timer}`}`}</span>
+                        Timer <span className="text-white">{`${timer > 59 ? "01:00" : `00:${timer < 10 ? `0${timer}` : timer}`}`}</span>
                     </div>
                   </div>
 
@@ -389,9 +385,7 @@ function App() {
                   <div className={`bg-[#1A1D23] rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/5 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
                     
 
-                  <div className={`grid justify-center gap-2 mb-8 ${
-                    shuffledWord.length > 8 ? 'grid-cols-5' : 'grid-cols-4' 
-                  } sm:flex sm:flex-wrap sm:justify-center`}>
+                  <div className={`flex justify-center gap-2 mb-8 flex-wrap`}>
                     {wordsCount > 0 && shuffledWord.split('').map((letter, i) => (
                       <div 
                         key={i} 
@@ -477,7 +471,6 @@ function App() {
           </div>
         ) : 
           <div className="space-y-6 text-center">
-            <Header />
             <Score 
               words={words}
               restartGame={restartGame}

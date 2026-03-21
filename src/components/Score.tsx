@@ -41,7 +41,7 @@ const Score = ({ restartGame, resetGame, words } : Props) => {
   };
 
   return (
-    <main className="relative z-10 w-full max-w-md">
+    <main className="relative z-10 pb-5 w-full max-w-md">
       {gameState === 'FINISHED' && (
         <>
           <div className="space-y-8 animate-in fade-in zoom-in duration-500">
@@ -51,13 +51,13 @@ const Score = ({ restartGame, resetGame, words } : Props) => {
               <div className="inline-block px-3 py-1 bg-teal-400/10 border border-teal-400/20 rounded-full text-[10px] font-bold text-teal-400 uppercase tracking-widest mb-4">
                 Session Complete
               </div>
-              <h1 className="text-5xl font-black italic tracking-tighter">PERFORMANCE</h1>
+              <h1 className="text-3xl md:text-5xl font-black italic tracking-tighter">PERFORMANCE</h1>
             </div>
 
             {/* Stats Card */}
             <div className="bg-[#1A1D23] rounded-[2.5rem] p-10 shadow-2xl border border-white/5 relative overflow-hidden">
-              <div className="absolute -right-8 -bottom-8 opacity-[0.03] rotate-12">
-                <span className="text-[12rem] font-black">P</span>
+              <div className="absolute -right-8 bottom-8 opacity-[0.03] rotate-12">
+                <span className="text-[12rem] font-black">PRIZRIZ</span>
               </div>
 
               <div className="relative z-10 space-y-10">
