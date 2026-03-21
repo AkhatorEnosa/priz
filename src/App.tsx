@@ -254,7 +254,7 @@ function App() {
                 {/* Difficulty Selection */}
                 <div className="flex flex-col items-center gap-3 py-10">
                   <span className="text-[9px] text-teal-600 tracking-widest uppercase font-bold">Difficulty level</span>
-                  <div className="grid grid-2 md:grid-3 justify-center gap-3">
+                  <div className="flex flex-wrap justify-center gap-3">
                     {DIFFICULTY_LIST.map((level) => (
                       <button
                         key={level.name}
@@ -348,7 +348,7 @@ function App() {
             </div>
 
         ) : gameState === 'PLAYING' ? (
-          <div className="space-y-6 text-center">
+          <div className="space-y-6 pb-10 text-center">
               {loading ?
                 <div className="h-[65vh] flex flex-col items-center justify-center bg-[#0F1115] overflow-hidden">
                   {/* Ambient Background Glow */}

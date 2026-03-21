@@ -2,10 +2,10 @@ import { useContext } from "react"
 import { AppContext } from "../context/AppContext"
 
 const Header = () => {
-  const { loading, gameState } = useContext(AppContext)
+  const { gameState } = useContext(AppContext)
   return (
-    gameState !== "FINISHED" && <div className='relative w-full py-10 mb-10'>
-      <div className='max-w-[80vw] flex flex-col justify-center items-center text-center w-fit relative'>
+    gameState !== "FINISHED" && <div className='relative w-full flex flex-col justify-center items-center text-center py-10 mb-10'>
+      <div className='max-w-[80vw] w-fit relative'>
         <h1 className="relative text-center text-5xl md:text-8xl font-black italic tracking-tighter bg-linear-to-b from-white to-gray-500 bg-clip-text text-transparent">
           PRIZQUIZ
           <span className="absolute top-2 size-4 bg-teal-400 border-4 border-[#0F1115] rounded-full" />
