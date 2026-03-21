@@ -5,7 +5,7 @@ import Score from './components/Score';
 import Header from './section/Header';
 import { yatesFisherSort } from './utils/yatesFisherSort';
 import Tooltip from './components/Tooltip';
-import { CheckCircle2, ScrollText, X } from 'lucide-react';
+import { ArrowBigRight, CheckCircle2, Eye, ScrollText, Shuffle, X } from 'lucide-react';
 import { RULES } from './constant/rules';
 
 function App() {
@@ -205,6 +205,29 @@ function App() {
       }, 500);
     }
   };
+
+  // handle show word function
+  const revealWord = () => {
+    setShuffledWord(word ?? "")
+    setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
+
+    const nextCount = wordsCount - 1;
+    setWordsCount(nextCount);
+
+    if (nextCount <= 0 || index === words.length - 1) {
+      setGameState('FINISHED');
+      setWordsCount(5); // Reset for next session
+      setCorrectAnswer(0)
+    } else {
+      // load next word after 500ms
+      setTimeout(() => {
+        setInputValue("");
+        setCorrectAnswer(0);
+        setShuffledWord(shuffleWord(word ?? ""))
+        loadNextWord();
+      }, 500);
+    }
+  }
 
   // reset game function
   const reset = () => {
@@ -419,7 +442,7 @@ function App() {
                           ${correctAnswer == 2 ? "text-red-500" : correctAnswer == 1 ? "text-green-500" : "text-white"}
                         `}
                         placeholder="_ _ _ _"
-                        autoFocus
+                        maxLength={word?.length}
                       />
                       <div className="absolute inset-x-0 bottom-0 h-0.5 bg-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
                     </div>
@@ -428,29 +451,39 @@ function App() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="flex flex-1 gap-2">
                         <button 
-                          className="relative group flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
+                          className="relative group flex-1 py-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
                           onClick={() => setShuffledWord(shuffleWord(shuffledWord))}
                         >
-                          Shuffle
+                          <Shuffle className="text-gray-600 group-hover:text-teal-400 transition-colors"/>
                           
                           <Tooltip
-                            description={"Reshuffle the letters for a fresh perspective"}
+                            description={"Shuffle the letters for a fresh perspective"}
                           />
                         </button>
                         <button 
-                          className="relative group flex-1 py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase text-gray-400"
+                          className="relative group flex-1 py-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
                           onClick={skipWord}
                         >
-                          Skip
+                          <ArrowBigRight className="text-gray-600 group-hover:text-teal-400 transition-colors"/>
                           
                           <Tooltip
                             description={`Give up on this word and move to the next one. ${difficulty === "HARD" ? `(Penalty: - ${pointsToAdd} points)` : ""}`}
                           />
-                        </button>
+                          </button>
+                          <button 
+                            className="relative group flex-1 flex items-center justify-center py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl transition-all"
+                            onClick={revealWord}
+                          >
+                            <Eye className="text-gray-600 group-hover:text-teal-400 transition-colors" />
+                            
+                            <Tooltip
+                              description={"Reveal the hidden word"}
+                            />
+                          </button>
                       </div>
                       
                       <button 
-                        className="flex-[1.5] py-4 bg-[#255f6f] hover:bg-[#2d7386] disabled:bg-gray-800 disabled:text-gray-600 text-white font-black rounded-xl transition-all shadow-lg shadow-teal-900/20 uppercase tracking-widest text-sm"
+                        className="flex-[1.5] py-4 bg-[#255f6f] hover:bg-[#2d7386] disabled:bg-gray-800 disabled:text-gray-600 text-white font-black rounded-xl transition-al uppercase tracking-widest text-sm"
                         onClick={handleSubmit}
                         disabled={loading || inputValue.length === 0}
                       >
