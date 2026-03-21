@@ -20,14 +20,17 @@ function App() {
     loading, setLoading
   } = useContext(AppContext);
 
+  const timeSelection = difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25;
+
   // local states
   const [inputValue, setInputValue] = useState("");
   const [words, setWords] = useState<string[]>([]);
   const [word, setWord] = useState<string | undefined>("");
   const [shuffledWord, setShuffledWord] = useState<string>("");
   const [correctAnswer, setCorrectAnswer] = useState<number>(0);
-  const [timer, setTimer] = useState(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
+  const [timer, setTimer] = useState(timeSelection);
   const [showRules, setShowRules] = useState<boolean>(false)
+  const [showWord, setShowWord] = useState<boolean>(false)
   const [error, setError] = useState<unknown>();
 
   if (error) {
@@ -100,11 +103,12 @@ function App() {
     setWord(nextWord);
     setShuffledWord(shuffleWord(nextWord))
     setIndex(prev => prev + 1);
+    setShowWord(false)
   }
 
   // skip word function
   const skipWord = () => {
-    setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
+    setTimer(timeSelection);
     setInputValue("");
 
     // Penalty for skipping on Hard Level
@@ -121,6 +125,35 @@ function App() {
       // Load next word
       loadNextWord();
     }
+  }
+
+
+  // handle show word function
+  const revealWord = () => {
+    setShuffledWord(word ?? "")
+    // setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
+    setShowWord(true)
+
+    // const nextCount = wordsCount - 1;
+    // setWordsCount(nextCount);
+    
+    // if (difficulty === "HARD") {
+    //   setScore(prev => Math.max(prev - 1000, 0)); 
+    // }
+
+    // if (nextCount <= 0 || index === words.length - 1) {
+    //   setGameState('FINISHED');
+    //   setWordsCount(5); // Reset for next session
+    //   setCorrectAnswer(0)
+    // } else {
+    //   // load next word after 500ms
+    //   setTimeout(() => {
+    //     setInputValue("");
+    //     setCorrectAnswer(0);
+    //     setShuffledWord(shuffleWord(word ?? ""))
+    //     loadNextWord();
+    //   }, 500);
+    // }
   }
 
   useEffect(() => {
@@ -150,7 +183,6 @@ function App() {
         setGameState('FINISHED');
       } else {
         skipWord();
-        setTimer(24);
       }
     }
   }, [timer, wordsCount, gameState]);
@@ -172,7 +204,7 @@ function App() {
 
     if (isCorrect) {
       setScore(prev => Math.max(prev + pointsToAdd, 0));
-      setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
+      setTimer(timeSelection);
       setWordsSolved(prev => prev + 1);
       setCorrectAnswer(1);
 
@@ -206,33 +238,10 @@ function App() {
     }
   };
 
-  // handle show word function
-  const revealWord = () => {
-    setShuffledWord(word ?? "")
-    setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
-
-    const nextCount = wordsCount - 1;
-    setWordsCount(nextCount);
-
-    if (nextCount <= 0 || index === words.length - 1) {
-      setGameState('FINISHED');
-      setWordsCount(5); // Reset for next session
-      setCorrectAnswer(0)
-    } else {
-      // load next word after 500ms
-      setTimeout(() => {
-        setInputValue("");
-        setCorrectAnswer(0);
-        setShuffledWord(shuffleWord(word ?? ""))
-        loadNextWord();
-      }, 500);
-    }
-  }
-
   // reset game function
   const reset = () => {
     setScore(0);
-    setTimer(24);
+    setTimer(timeSelection);
     setInputValue("");
     setGameState('START');
     setWordsSolved(0);
@@ -443,6 +452,7 @@ function App() {
                         `}
                         placeholder="_ _ _ _"
                         maxLength={word?.length}
+                        disabled={showWord}
                       />
                       <div className="absolute inset-x-0 bottom-0 h-0.5 bg-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
                     </div>
@@ -451,10 +461,11 @@ function App() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="flex flex-1 gap-2">
                         <button 
-                          className="relative group flex-1 py-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
+                          className={`relative group flex-1 py-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
                           onClick={() => setShuffledWord(shuffleWord(shuffledWord))}
+                          disabled={showWord}
                         >
-                          <Shuffle className="text-gray-600 group-hover:text-teal-400 transition-colors"/>
+                          <Shuffle className={`text-gray-600 ${showWord ? "" : "group-hover:text-teal-400"} transition-colors`}/>
                           
                           <Tooltip
                             description={"Shuffle the letters for a fresh perspective"}
@@ -471,10 +482,10 @@ function App() {
                           />
                           </button>
                           <button 
-                            className="relative group flex-1 flex items-center justify-center py-4 bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl transition-all"
+                            className={`relative group flex-1 py-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
                             onClick={revealWord}
                           >
-                            <Eye className="text-gray-600 group-hover:text-teal-400 transition-colors" />
+                            <Eye className={`text-gray-600 ${showWord ? "text-teal-400" : "group-hover:text-teal-400"} transition-colors`} />
                             
                             <Tooltip
                               description={"Reveal the hidden word"}
@@ -485,7 +496,7 @@ function App() {
                       <button 
                         className="flex-[1.5] py-4 bg-[#255f6f] hover:bg-[#2d7386] disabled:bg-gray-800 disabled:text-gray-600 text-white font-black rounded-xl transition-al uppercase tracking-widest text-sm"
                         onClick={handleSubmit}
-                        disabled={loading || inputValue.length === 0}
+                        disabled={loading || inputValue.length === 0 || showWord}
                       >
                         Submit
                       </button>
