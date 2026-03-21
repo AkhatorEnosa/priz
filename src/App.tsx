@@ -17,6 +17,7 @@ function App() {
     difficulty, setDifficulty,
     wordsCount, setWordsCount,
     index, setIndex,
+    loading, setLoading
   } = useContext(AppContext);
 
   // local states
@@ -26,7 +27,6 @@ function App() {
   const [shuffledWord, setShuffledWord] = useState<string>("");
   const [correctAnswer, setCorrectAnswer] = useState<number>(0);
   const [timer, setTimer] = useState(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
-  const [loading, setLoading] = useState(false);
   const [showRules, setShowRules] = useState<boolean>(false)
   const [error, setError] = useState<unknown>();
 

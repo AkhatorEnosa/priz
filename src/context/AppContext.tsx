@@ -13,6 +13,8 @@ export const AppContext = createContext<{
   setWordsCount: React.Dispatch<React.SetStateAction<number>>
   index: number;
   setIndex: React.Dispatch<React.SetStateAction<number>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
   gameState: 'START',
   setGameState: () => {},
@@ -26,6 +28,8 @@ export const AppContext = createContext<{
   setWordsCount: () => {},
   index: 0,
   setIndex: () => {},
+  loading: false,
+  setLoading: () => {},
 });
 
 
@@ -36,6 +40,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [difficulty, setDifficulty] = useState('EASY');
   const [wordsCount, setWordsCount] = useState(5);
   const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
     
   return (
     <AppContext.Provider value={{
@@ -50,7 +55,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       wordsCount,
       setWordsCount,
       index,
-      setIndex
+      setIndex,
+      loading,
+      setLoading
     }}>
       {children}
     </AppContext.Provider>
