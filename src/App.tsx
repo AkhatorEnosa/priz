@@ -446,10 +446,10 @@ function App() {
 
                   <div className={`flex justify-center gap-2 mb-8 flex-wrap`}>
                     {wordsCount > 0 && shuffledWord.split('').map((letter, i) => (
-                      <div 
+                      <button 
                         key={i} 
                         className={`
-                          flex items-center justify-center font-black ${usedIndices.includes(i) ? "text-gray-400" : "text-teal-400"} uppercase
+                          group relative flex items-center justify-center font-black ${usedIndices.includes(i) ? "text-gray-400" : "text-teal-400"} uppercase
                           bg-[#252932] rounded-xl border border-white/5 shadow-inner
                           transition-all duration-200
                           ${shuffledWord.length > 6 
@@ -457,9 +457,13 @@ function App() {
                             : 'w-14 h-16 text-3xl'}
                         `}
                         onClick={() => handleLetterClick(letter, i)}
+                        disabled={showWord}
                       >
                         {letter}
-                      </div>
+                        {showWord && <Tooltip
+                          description={"You have reveal word. Skip to next word."}
+                        />}
+                      </button>
                     ))}
                   </div>
 
@@ -528,10 +532,10 @@ function App() {
                         </button>
 
                         <button 
-                          className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black overflow-hidden tracking-widest transition-all uppercase`}
+                          className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black  tracking-widest transition-all uppercase`}
                           onClick={skipWord}
                         >
-                            <div className={`absolute left-0 top-0 w-full h-full ${showWord && "animate animate-pulse bg-teal-400/40"} z-30`}></div>
+                            <div className={`absolute left-0 rounded-xl top-0 w-full h-full ${showWord && "animate animate-pulse bg-teal-400/40"} z-30`}></div>
                             <ArrowBigRight className={`relative ${showWord ? "text-white/50" : "text-gray-600"} group-hover:text-teal-400 transition-colors z-50`} />
                           
                           <Tooltip
