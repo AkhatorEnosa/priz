@@ -409,7 +409,7 @@ function App() {
         ) : gameState === 'PLAYING' ? (
           <div className="space-y-6 pb-10 text-center">
               {loading ?
-                <div className="h-[65vh] flex flex-col items-center justify-center bg-[#0F1115] overflow-hidden">
+                <div className="h-[65vh] flex flex-col items-center justify-center overflow-hidden">
                   {/* Ambient Background Glow */}
                   <div className="bg-teal-500/10 rounded-full blur-[120px] animate-pulse" />
 
@@ -528,10 +528,11 @@ function App() {
                         </button>
 
                         <button 
-                          className="relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
+                          className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black overflow-hidden tracking-widest transition-all uppercase`}
                           onClick={skipWord}
                         >
-                          <ArrowBigRight className="text-gray-600 group-hover:text-teal-400 transition-colors"/>
+                            <div className={`absolute left-0 top-0 w-full h-full ${showWord && "animate animate-pulse bg-teal-400/40"} z-30`}></div>
+                            <ArrowBigRight className={`relative ${showWord ? "text-white/50" : "text-gray-600"} group-hover:text-teal-400 transition-colors z-50`} />
                           
                           <Tooltip
                             description={`Give up on this word and move to the next one. ${difficulty === 2 ? `(Penalty: - ${pointsToAdd} points)` : ""}`}
