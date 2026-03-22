@@ -20,7 +20,7 @@ function App() {
     loading, setLoading
   } = useContext(AppContext);
 
-  const timeSelection = difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25;
+  const timeSelection = difficulty === 0 ? 60 : difficulty === 1 ? 45 : 25;
 
   // local states
   const [inputValue, setInputValue] = useState("");
@@ -31,6 +31,7 @@ function App() {
   const [timer, setTimer] = useState(timeSelection);
   const [showRules, setShowRules] = useState<boolean>(false)
   const [showWord, setShowWord] = useState<boolean>(false)
+  const [usedIndices, setUsedIndices] = useState<number[]>([])
   const [error, setError] = useState<unknown>();
 
   if (error) {
@@ -38,7 +39,7 @@ function App() {
   }
   
   // points based on difficulty
-  const pointsToAdd = difficulty == 'EASY' ? 100 : difficulty == 'MEDIUM' ? 500 : 1000;
+  const pointsToAdd = difficulty === 0 ? 100 : difficulty === 1 ? 500 : 1000;
 
   // unscramble words function
   const shuffleWord = useCallback((item: string) => {
@@ -76,7 +77,7 @@ function App() {
   // get word from api and set it to word state
   const fetchWord = async () => {
     if (gameState === 'PLAYING') {
-      const urlAddon = difficulty === 'EASY' ? `diff=1&length=${getRandomInRange(4, 5)}` : difficulty === 'MEDIUM' ? `diff=3&length=${getRandomInRange(6, 8)}` : `diff=5&length=${getRandomInRange(9, 12)}`;
+      const urlAddon = difficulty === 0 ? `diff=1&length=${getRandomInRange(4, 5)}` : difficulty === 1 ? `diff=3&length=${getRandomInRange(6, 8)}` : `diff=5&length=${getRandomInRange(9, 12)}`;
       setLoading(true);
       try {
         const response = await fetch(`https://random-word-api.herokuapp.com/word?number=${wordsCount}&${urlAddon}`);
@@ -104,15 +105,17 @@ function App() {
     setShuffledWord(shuffleWord(nextWord))
     setIndex(prev => prev + 1);
     setShowWord(false)
+    setUsedIndices([])
+    setInputValue("");
+    setCorrectAnswer(0);
   }
 
   // skip word function
   const skipWord = () => {
     setTimer(timeSelection);
-    setInputValue("");
 
     // Penalty for skipping on Hard Level
-    if (difficulty === "HARD") {
+    if (difficulty === 2) {
       setScore(prev => Math.max(prev - 1000, 0)); 
     }
     setWordsCount(prev => prev - 1); // Reduce total word count
@@ -131,29 +134,7 @@ function App() {
   // handle show word function
   const revealWord = () => {
     setShuffledWord(word ?? "")
-    // setTimer(difficulty == 'EASY' ? 60 : difficulty == 'MEDIUM' ? 45 : 25);
     setShowWord(true)
-
-    // const nextCount = wordsCount - 1;
-    // setWordsCount(nextCount);
-    
-    // if (difficulty === "HARD") {
-    //   setScore(prev => Math.max(prev - 1000, 0)); 
-    // }
-
-    // if (nextCount <= 0 || index === words.length - 1) {
-    //   setGameState('FINISHED');
-    //   setWordsCount(5); // Reset for next session
-    //   setCorrectAnswer(0)
-    // } else {
-    //   // load next word after 500ms
-    //   setTimeout(() => {
-    //     setInputValue("");
-    //     setCorrectAnswer(0);
-    //     setShuffledWord(shuffleWord(word ?? ""))
-    //     loadNextWord();
-    //   }, 500);
-    // }
   }
 
   useEffect(() => {
@@ -198,6 +179,13 @@ function App() {
     }
   }, [showRules])
 
+  useEffect(() => {
+  // Only trigger once the lengths match to avoid checking every single keystroke
+  if (inputValue.length === word?.length && inputValue.length > 0) {
+    handleSubmit();
+  }
+}, [inputValue, word]);
+
   // Handle Answer Submission
   const handleSubmit = () => {
     const isCorrect = inputValue.trim().toLowerCase() === word?.toLowerCase();
@@ -214,49 +202,88 @@ function App() {
       setWordsCount(nextCount);
 
       if (nextCount <= 0 || index === words.length - 1) {
-        setGameState('FINISHED');
-        setWordsCount(5); // Reset for next session
-        setCorrectAnswer(0)
+        // game over
+        setTimeout(() => {
+          setGameState('FINISHED');
+          setWordsCount(5); 
+          setCorrectAnswer(0);
+          setUsedIndices([]);
+          setInputValue("");
+        }, 600);
       } else {
         // load next word after 500ms
         setTimeout(() => {
-          setInputValue("");
-          setCorrectAnswer(0);
           loadNextWord();
         }, 500);
       }
 
     } else {
       // Wrong answer logic
-      // setScore(prev => Math.max(prev - points, 0));
       setCorrectAnswer(2)
       
       setTimeout(() => {
         setInputValue(""); 
         setCorrectAnswer(0);
+        setUsedIndices([])
       }, 500);
+    }
+  };
+
+  const handleLetterClick = (letter: string, index: number) => {
+    if (usedIndices.includes(index)) {
+      // locate where this specific index is in the usedIndices array
+      const letterPos = usedIndices.indexOf(index);
+
+      // remove the character in that position 
+      setInputValue(prev => prev.slice(0, letterPos) + prev.slice(letterPos + 1));
+
+      // remove the index from tracking array
+      setUsedIndices(prev => prev.filter(i => i !== index));
+    } else if (word?.length > inputValue.length) {
+      setInputValue((prev) => prev + letter)
+      setUsedIndices((prev) => [...prev, index])
     }
   };
 
   // reset game function
   const reset = () => {
     setScore(0);
-    setTimer(timeSelection);
+    setTimer(0);
     setInputValue("");
     setGameState('START');
     setWordsSolved(0);
     setIndex(0);
     setCorrectAnswer(0)
+    setIndex(0)
+    setLoading(false)
+    setWords([])
+    setWord("")
+    setShuffledWord("")
+    setShowRules(false)
+    setShowWord(false)
+    setDifficulty(0)
+    setWordsCount(5)
+    setError(null)
+
   }
 
   const restartGame = () => {
     setScore(0);
+    setTimer(timeSelection)
     setWordsSolved(0);
     setInputValue("");
     setGameState('PLAYING');
     setWordsCount(5);
     setIndex(0);
     setCorrectAnswer(0)
+
+
+    setLoading(false)
+    setWords([])
+    setWord("")
+    setShuffledWord("")
+    setShowRules(false)
+    setShowWord(false)
   }
 
   return (
@@ -289,10 +316,10 @@ function App() {
                   <div className="flex flex-wrap justify-center gap-3">
                     {DIFFICULTY_LIST.map((level) => (
                       <button
-                        key={level.name}
-                        onClick={() => setDifficulty(level.name)}
+                        key={level.code}
+                        onClick={() => setDifficulty(level.code)}
                         className={`group relative text-xs font-black tracking-widest px-4 py-1.5 uppercase rounded-full border transition-all ${
-                          difficulty === level.name 
+                          difficulty === level.code 
                             ? 'border-teal-400 text-teal-400 bg-teal-400/10 shadow-[0_0_15px_rgba(45,212,191,0.2)]' 
                             : 'border-white/10 text-gray-600 hover:border-white/20'
                           }`
@@ -406,7 +433,7 @@ function App() {
                         Count <span className="text-white">{`${index + 1}/${words?.length}`}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Level <span className="text-white">{difficulty}</span>
+                        Level <span className="text-white">{difficulty === 0 ? 'EASY' : difficulty === 1 ? 'MEDIUM' : 'HARD'}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
                         Timer <span className="text-white">{`${timer > 59 ? "01:00" : `00:${timer < 10 ? `0${timer}` : timer}`}`}</span>
@@ -422,13 +449,14 @@ function App() {
                       <div 
                         key={i} 
                         className={`
-                          flex items-center justify-center font-black text-teal-400 uppercase
+                          flex items-center justify-center font-black ${usedIndices.includes(i) ? "text-gray-400" : "text-teal-400"} uppercase
                           bg-[#252932] rounded-xl border border-white/5 shadow-inner
                           transition-all duration-200
                           ${shuffledWord.length > 6 
                             ? 'w-10 h-12 text-xl sm:w-12 sm:h-14 sm:text-2xl' 
                             : 'w-14 h-16 text-3xl'}
                         `}
+                        onClick={() => handleLetterClick(letter, i)}
                       >
                         {letter}
                       </div>
@@ -437,31 +465,47 @@ function App() {
 
                   {/* Interaction & Input Container */}
                   <div className="space-y-6">
-                    {/* Input: Massive & Focused */}
-                    <div className="relative group">
-                      <input 
-                        type="text" 
+                    <div className="relative w-full flex justify-center items-center">
+                      <input
+                        type="text"
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        className={`
-                          w-full uppercase bg-transparent border-b-2 border-gray-800 py-4 text-center 
-                          font-black outline-none focus:border-teal-400 transition-colors tracking-widest 
-                          placeholder:text-gray-800
-                          ${shuffledWord.length > 8 ? 'text-2xl' : 'text-4xl'}
-                          ${correctAnswer == 2 ? "text-red-500" : correctAnswer == 1 ? "text-green-500" : "text-white"}
-                        `}
-                        placeholder="_ _ _ _"
+                        onChange={(e) => setInputValue(e.target.value.toUpperCase())}
+                        className="absolute inset-0 z-10 w-full h-full opacity-0 cursor-text"
                         maxLength={word?.length}
-                        disabled={showWord}
+                        disabled
+                        autoFocus
                       />
-                      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
+
+                      <div className="flex gap-2 w-full justify-center">
+                        {Array.from({ length: word?.length || 0 }).map((_, i) => {
+                          const char = inputValue[i];
+                          const isActive = inputValue.length === i;
+
+                          return (
+                            <div
+                              key={i}
+                              className={`
+                                flex items-center justify-center rounded-lg transition-all duration-200
+                                ${shuffledWord.length > 8 ? 'w-8 h-12 text-2xl' : 'w-12 h-16 text-4xl'}
+                                font-black uppercase border-b-4
+                                ${correctAnswer === 2 ? "bg-red-500/20 border-red-500 text-red-500 shake" : 
+                                  correctAnswer === 1 ? "bg-green-500/20 border-green-500 text-green-500" : 
+                                  char ? "bg-[#255f6f] border-[#114f60] text-white" : "bg-gray-800/50 border-gray-800 text-gray-500"}
+                                ${isActive && !showWord ? "border-teal-400 ring-2 ring-teal-400/20" : ""}
+                              `}
+                            >
+                              {char || ""}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     {/* Controls Row */}
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="flex flex-1 gap-2">
                         <button 
-                          className={`relative group flex-1 py-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
+                          className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
                           onClick={() => setShuffledWord(shuffleWord(shuffledWord))}
                           disabled={showWord}
                         >
@@ -471,35 +515,37 @@ function App() {
                             description={"Shuffle the letters for a fresh perspective"}
                           />
                         </button>
+                        
                         <button 
-                          className="relative group flex-1 py-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
+                          className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
+                          onClick={revealWord}
+                        >
+                          <Eye className={`text-gray-600 ${showWord ? "text-teal-400" : "group-hover:text-teal-400"} transition-colors`} />
+                          
+                          <Tooltip
+                            description={"Reveal the hidden word"}
+                          />
+                        </button>
+
+                        <button 
+                          className="relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
                           onClick={skipWord}
                         >
                           <ArrowBigRight className="text-gray-600 group-hover:text-teal-400 transition-colors"/>
                           
                           <Tooltip
-                            description={`Give up on this word and move to the next one. ${difficulty === "HARD" ? `(Penalty: - ${pointsToAdd} points)` : ""}`}
+                            description={`Give up on this word and move to the next one. ${difficulty === 2 ? `(Penalty: - ${pointsToAdd} points)` : ""}`}
                           />
-                          </button>
-                          <button 
-                            className={`relative group flex-1 py-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
-                            onClick={revealWord}
-                          >
-                            <Eye className={`text-gray-600 ${showWord ? "text-teal-400" : "group-hover:text-teal-400"} transition-colors`} />
-                            
-                            <Tooltip
-                              description={"Reveal the hidden word"}
-                            />
-                          </button>
+                        </button>
                       </div>
                       
-                      <button 
+                      {/* <button 
                         className="flex-[1.5] py-4 bg-[#255f6f] hover:bg-[#2d7386] disabled:bg-gray-800 disabled:text-gray-600 text-white font-black rounded-xl transition-al uppercase tracking-widest text-sm"
                         onClick={handleSubmit}
                         disabled={loading || inputValue.length === 0 || showWord}
                       >
                         Submit
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -508,7 +554,7 @@ function App() {
                     onClick={reset}
                     className="w-full text-[10px] text-gray-600 hover:text-gray-400 font-bold uppercase tracking-[0.4em] transition-colors"
                   >
-                    Abort Session
+                    Abort Game Session
                   </button>
                 </>
               }

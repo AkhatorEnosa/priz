@@ -7,8 +7,8 @@ export const AppContext = createContext<{
   setScore: React.Dispatch<React.SetStateAction<number>>;
   wordsSolved: number;
   setWordsSolved: React.Dispatch<React.SetStateAction<number>>;
-  difficulty: string;
-  setDifficulty: React.Dispatch<React.SetStateAction<string>>;
+  difficulty: number;
+  setDifficulty: React.Dispatch<React.SetStateAction<number>>;
   wordsCount: number;
   setWordsCount: React.Dispatch<React.SetStateAction<number>>
   index: number;
@@ -22,7 +22,7 @@ export const AppContext = createContext<{
   setScore: () => {},
   wordsSolved: 0,
   setWordsSolved: () => {},
-  difficulty: 'EASY',
+  difficulty: 0,
   setDifficulty: () => {},
   wordsCount: 5,
   setWordsCount: () => {},
@@ -37,7 +37,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [gameState, setGameState] = useState('START');
   const [score, setScore] = useState(0); // Example score
   const [wordsSolved, setWordsSolved] = useState(0);
-  const [difficulty, setDifficulty] = useState('EASY');
+  const [difficulty, setDifficulty] = useState(0);
   const [wordsCount, setWordsCount] = useState(5);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(false);
