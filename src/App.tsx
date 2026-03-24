@@ -7,6 +7,8 @@ import { yatesFisherSort } from './utils/yatesFisherSort';
 import Tooltip from './components/Tooltip';
 import { ArrowBigRight, CheckCircle2, Eye, ScrollText, Shuffle, X } from 'lucide-react';
 import { RULES } from './constant/rules';
+import type { LetterProps } from './utils/types';
+import { transformItemToObj } from './utils/transformItemToObj';
 
 function App() {
   // global states
@@ -25,8 +27,8 @@ function App() {
   // local states
   const [inputValue, setInputValue] = useState("");
   const [words, setWords] = useState<string[]>([]);
-  const [word, setWord] = useState<string | undefined>("");
-  const [shuffledWord, setShuffledWord] = useState<string>("");
+  const [word, setWord] = useState<string>("");
+  const [shuffledWord, setShuffledWord] = useState<LetterProps[]>([]);
   const [correctAnswer, setCorrectAnswer] = useState<number>(0);
   const [timer, setTimer] = useState(timeSelection);
   const [showRules, setShowRules] = useState<boolean>(false)
@@ -41,16 +43,16 @@ function App() {
   // points based on difficulty
   const pointsToAdd = difficulty === 0 ? 100 : difficulty === 1 ? 500 : 1000;
 
-  // unscramble words function
-  const shuffleWord = useCallback((item: string) => {
+  // shuffle words function
+  const shuffleWord = useCallback((item:string) : LetterProps[] => {
     // if word is empty or 1 char, return
-    if (!item || item.length <= 1) return item;
+    if (!item || item.length <= 1) return  yatesFisherSort(item);
 
-    // if all characters are the same return
+    // if all characters in the word are the same return
     const isUnique = new Set(item).size > 1;
-    if (!isUnique) return item;
+    if (!isUnique) return yatesFisherSort(item);
 
-    let shuffled = item;
+    let shuffled = yatesFisherSort(item);
     let attempts = 0;
     const maxAttempts = 10;
 
@@ -60,14 +62,34 @@ function App() {
       
       // Is it actually different? 
       // (Add 'word' to the condition if you are checking against a global state)
-      if (shuffled !== item && shuffled !== word) {
-        break; 
+      // if (shuffled !== item && shuffled !== yatesFisherSort(word)) {
+      if (shuffled !== yatesFisherSort(item)) {
+        break;
       }
       attempts++;
     }
 
+    // console.log(shuffled)
+
     return shuffled;
   }, [word]);
+
+
+  // transform word to an array of key-value object to maintain unique identity
+  // const transformItemToObj = (word: string) : LetterProps[] => {
+  //   const splitWord = word.split("");
+
+  //   const newArr = [];
+
+  //   for (let i = 0; i < splitWord.length; i++) {
+  //     newArr.push({
+  //       id: i,
+  //       char: splitWord[i]
+  //     })
+  //   }
+
+  //   return newArr;
+  // }
 
   // generate random number 
   const getRandomInRange = (min: number, max: number): number => {
@@ -86,7 +108,7 @@ function App() {
         // console.log(data)
         setWords(data);
         setWord(data[0]);
-        setShuffledWord(shuffleWord(data[0] ?? ""));
+        setShuffledWord(shuffleWord(data[0]));
 
       } catch (err: unknown) {
         console.error('Error fetching word:', error);
@@ -116,7 +138,7 @@ function App() {
 
     // Penalty for skipping on Hard Level
     if (difficulty === 2) {
-      setScore(prev => Math.max(prev - 1000, 0)); 
+      setScore(prev => Math.max(prev - 1000, 0));
     }
     setWordsCount(prev => prev - 1); // Reduce total word count
       
@@ -133,8 +155,10 @@ function App() {
 
   // handle show word function
   const revealWord = () => {
-    setShuffledWord(word ?? "")
+    // setShuffledWord(word ?? "")
     setShowWord(true)
+    setInputValue("")
+    setUsedIndices([])
   }
 
   useEffect(() => {
@@ -155,7 +179,7 @@ function App() {
     }
 
     return () => clearInterval(interval);
-   }, [gameState, loading]); // Only restart if the game is playing or not
+  }, [gameState, loading]); // Only restart if the game is playing or not
 
   // Handle the timer hitting zero separately
   useEffect(() => {
@@ -180,11 +204,11 @@ function App() {
   }, [showRules])
 
   useEffect(() => {
-  // Only trigger once the lengths match to avoid checking every single keystroke
-  if (inputValue.length === word?.length && inputValue.length > 0) {
-    handleSubmit();
-  }
-}, [inputValue, word]);
+    // Only trigger once the lengths match to avoid checking every single keystroke
+    if (inputValue.length === word?.length && inputValue.length > 0) {
+      handleSubmit();
+    }
+  }, [inputValue, word]);
 
   // Handle Answer Submission
   const handleSubmit = () => {
@@ -205,7 +229,7 @@ function App() {
         // game over
         setTimeout(() => {
           setGameState('FINISHED');
-          setWordsCount(5); 
+          setWordsCount(5);
           setCorrectAnswer(0);
           setUsedIndices([]);
           setInputValue("");
@@ -222,28 +246,30 @@ function App() {
       setCorrectAnswer(2)
       
       setTimeout(() => {
-        setInputValue(""); 
+        setInputValue("");
         setCorrectAnswer(0);
         setUsedIndices([])
       }, 500);
     }
   };
 
-  const handleLetterClick = (letter: string, index: number) => {
-    if (usedIndices.includes(index)) {
+  const handleLetterClick = (letter: string, id: number) => {
+    if (usedIndices.includes(id)) {
       // locate where this specific index is in the usedIndices array
-      const letterPos = usedIndices.indexOf(index);
+      const letterPos = usedIndices.indexOf(id);
 
       // remove the character in that position 
       setInputValue(prev => prev.slice(0, letterPos) + prev.slice(letterPos + 1));
 
       // remove the index from tracking array
-      setUsedIndices(prev => prev.filter(i => i !== index));
+      setUsedIndices(prev => prev.filter(i => i !== id));
     } else if (word?.length > inputValue.length) {
       setInputValue((prev) => prev + letter)
-      setUsedIndices((prev) => [...prev, index])
+      setUsedIndices((prev) => [...prev, id])
     }
-  };
+
+    // console.log(usedIndices, id)
+  }
 
   // reset game function
   const reset = () => {
@@ -258,11 +284,12 @@ function App() {
     setLoading(false)
     setWords([])
     setWord("")
-    setShuffledWord("")
+    setShuffledWord([])
     setShowRules(false)
     setShowWord(false)
     setDifficulty(0)
     setWordsCount(5)
+    setUsedIndices([])
     setError(null)
 
   }
@@ -281,9 +308,10 @@ function App() {
     setLoading(false)
     setWords([])
     setWord("")
-    setShuffledWord("")
+    setShuffledWord([])
     setShowRules(false)
     setShowWord(false)
+    setUsedIndices([])
   }
 
   return (
@@ -336,7 +364,7 @@ function App() {
                 <div className="flex flex-col items-center gap-3 py-10">
                   <span className="text-[9px] text-teal-600 tracking-widest uppercase font-bold">Word Count</span>
                   <div className="flex justify-center gap-3">
-                    {[5, 10, 20, 50].map((count) => (
+                    {[5, 10, 20].map((count) => (
                       <button
                         key={count}
                         onClick={() => setWordsCount(count)}
@@ -445,26 +473,30 @@ function App() {
                     
 
                   <div className={`flex justify-center gap-2 mb-8 flex-wrap`}>
-                    {wordsCount > 0 && shuffledWord.split('').map((letter, i) => (
-                      <button 
-                        key={i} 
-                        className={`
-                          group relative flex items-center justify-center font-black ${usedIndices.includes(i) ? "text-gray-400" : "text-teal-400"} uppercase
+                    {wordsCount > 0 && (showWord ? transformItemToObj(word) : shuffledWord).map((obj: LetterProps, i: number) => {
+                      const isUsed = usedIndices.includes(obj.id);
+                      return (
+                        <button
+                          key={i}
+                          className={`
+                          group relative flex items-center justify-center font-black
+                          ${isUsed ? "text-gray-400" : "text-teal-400"} uppercase
                           bg-[#252932] rounded-xl border border-white/5 shadow-inner
                           transition-all duration-200
-                          ${shuffledWord.length > 6 
-                            ? 'w-10 h-12 text-xl sm:w-12 sm:h-14 sm:text-2xl' 
-                            : 'w-14 h-16 text-3xl'}
+                          ${shuffledWord.length > 6
+                              ? 'w-10 h-12 text-xl sm:w-12 sm:h-14 sm:text-2xl'
+                              : 'w-14 h-16 text-3xl'}
                         `}
-                        onClick={() => handleLetterClick(letter, i)}
-                        disabled={showWord}
-                      >
-                        {letter}
-                        {showWord && <Tooltip
-                          description={"You have reveal word. Skip to next word."}
-                        />}
-                      </button>
-                    ))}
+                          onClick={() => handleLetterClick(obj.char, obj.id)}
+                          disabled={showWord}
+                        >
+                          {obj.char}
+                          {showWord && <Tooltip
+                            description={"You have reveal word. Skip to next word."}
+                          />}
+                        </button>
+                      )
+                    })}
                   </div>
 
                   {/* Interaction & Input Container */}
@@ -510,7 +542,7 @@ function App() {
                       <div className="flex flex-1 gap-2">
                         <button 
                           className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
-                          onClick={() => setShuffledWord(shuffleWord(shuffledWord))}
+                          onClick={() => setShuffledWord(shuffleWord(word ?? ''))}
                           disabled={showWord}
                         >
                           <Shuffle className={`text-gray-600 ${showWord ? "" : "group-hover:text-teal-400"} transition-colors`}/>
