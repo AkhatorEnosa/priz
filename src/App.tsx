@@ -9,6 +9,7 @@ import { ArrowBigRight, CheckCircle2, Eye, ScrollText, Shuffle, X } from 'lucide
 import { RULES } from './constant/rules';
 import type { LetterProps } from './utils/types';
 import { transformItemToObj } from './utils/transformItemToObj';
+import { AnimatePresence, motion } from 'framer-motion';
 
 function App() {
   // global states
@@ -33,7 +34,7 @@ function App() {
   const [timer, setTimer] = useState(timeSelection);
   const [showRules, setShowRules] = useState<boolean>(false)
   const [showWord, setShowWord] = useState<boolean>(false)
-  const [usedIndices, setUsedIndices] = useState<number[]>([])
+  const [usedIndices, setUsedIndices] = useState<string[]>([])
   const [error, setError] = useState<unknown>();
 
   if (error) {
@@ -74,23 +75,6 @@ function App() {
     return shuffled;
   }, [word]);
 
-
-  // transform word to an array of key-value object to maintain unique identity
-  // const transformItemToObj = (word: string) : LetterProps[] => {
-  //   const splitWord = word.split("");
-
-  //   const newArr = [];
-
-  //   for (let i = 0; i < splitWord.length; i++) {
-  //     newArr.push({
-  //       id: i,
-  //       char: splitWord[i]
-  //     })
-  //   }
-
-  //   return newArr;
-  // }
-
   // generate random number 
   const getRandomInRange = (min: number, max: number): number => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -122,6 +106,8 @@ function App() {
 
   // next word function
   const loadNextWord = () => {
+    setUsedIndices([])
+    setInputValue("");
     const nextWord = words[index + 1];
     setWord(nextWord);
     setShuffledWord(shuffleWord(nextWord))
@@ -135,11 +121,6 @@ function App() {
   // skip word function
   const skipWord = () => {
     setTimer(timeSelection);
-
-    // Penalty for skipping on Hard Level
-    if (difficulty === 2) {
-      setScore(prev => Math.max(prev - 1000, 0));
-    }
     setWordsCount(prev => prev - 1); // Reduce total word count
       
     // Check if the game should end
@@ -149,6 +130,11 @@ function App() {
     } else {
       // Load next word
       loadNextWord();
+    }
+
+    // Penalty for skipping on Hard Level
+    if (difficulty === 2) {
+      setScore(prev => Math.max(prev - 1000, 0));
     }
   }
 
@@ -253,7 +239,7 @@ function App() {
     }
   };
 
-  const handleLetterClick = (letter: string, id: number) => {
+  const handleLetterClick = (letter: string, id: string) => {
     if (usedIndices.includes(id)) {
       // locate where this specific index is in the usedIndices array
       const letterPos = usedIndices.indexOf(id);
@@ -473,30 +459,36 @@ function App() {
                     
 
                   <div className={`flex justify-center gap-2 mb-8 flex-wrap`}>
-                    {wordsCount > 0 && (showWord ? transformItemToObj(word) : shuffledWord).map((obj: LetterProps, i: number) => {
-                      const isUsed = usedIndices.includes(obj.id);
-                      return (
-                        <button
-                          key={i}
-                          className={`
-                          group relative flex items-center justify-center font-black
-                          ${isUsed ? "text-gray-400" : "text-teal-400"} uppercase
-                          bg-[#252932] rounded-xl border border-white/5 shadow-inner
-                          transition-all duration-200
-                          ${shuffledWord.length > 6
-                              ? 'w-10 h-12 text-xl sm:w-12 sm:h-14 sm:text-2xl'
-                              : 'w-14 h-16 text-3xl'}
-                        `}
-                          onClick={() => handleLetterClick(obj.char, obj.id)}
-                          disabled={showWord}
-                        >
-                          {obj.char}
-                          {showWord && <Tooltip
-                            description={"You have reveal word. Skip to next word."}
-                          />}
-                        </button>
-                      )
-                    })}
+                    <AnimatePresence mode="popLayout">
+                      {wordsCount > 0 && (showWord ? transformItemToObj(word) : shuffledWord).map((obj: LetterProps, i: number) => {
+                        const isUsed = usedIndices.includes(obj.id);
+                        return (
+                          <motion.button
+                            key={obj.id}
+                            className={`
+                              group relative flex items-center justify-center font-black
+                              ${isUsed ? "text-gray-400" : "text-teal-400"} uppercase
+                              bg-[#252932] rounded-xl border border-white/5 shadow-inner
+                              transition-all duration-200
+                              ${shuffledWord.length > 6
+                                  ? 'w-10 h-12 text-xl sm:w-12 sm:h-14 sm:text-2xl'
+                                  : 'w-14 h-16 text-3xl'}
+                            `}
+                            initial={{ scale: 0.3, opacity: 0, y: -10 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.5, opacity: 0 }}
+                            transition={{ type: "tween", ease: "circInOut", duration: 0.04, delay: i * 0.05 }}
+                            onClick={() => handleLetterClick(obj.char, obj.id)}
+                            disabled={showWord}
+                          >
+                            {obj.char}
+                            {showWord && <Tooltip
+                              description={"You have reveal word. Skip to next word."}
+                            />}
+                          </motion.button>
+                        )
+                      })}
+                    </AnimatePresence>
                   </div>
 
                   {/* Interaction & Input Container */}

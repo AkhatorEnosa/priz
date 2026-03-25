@@ -1,4 +1,4 @@
 export interface LetterProps {
-  id: number,
+  id: string,
   char: string
 }
