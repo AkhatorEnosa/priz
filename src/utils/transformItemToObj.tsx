@@ -4,7 +4,7 @@ import type { LetterProps } from "./types";
 export const transformItemToObj = (word: string): LetterProps[] => {
   if (!word) return [];
 
-    const splitWord = word.split("");
+    const splitWord = Array.from(word);
     const newArr = [];
 
     for (let i = 0; i < splitWord.length; i++) {

@@ -16,7 +16,7 @@ function App() {
   const {
     score, setScore,
     gameState, setGameState,
-    setWordsSolved,
+    wordsSolved,setWordsSolved,
     difficulty, setDifficulty,
     wordsCount, setWordsCount,
     index, setIndex,
@@ -46,34 +46,35 @@ function App() {
 
   // shuffle words function
   const shuffleWord = useCallback((item:string) : LetterProps[] => {
+    const originalObjects = transformItemToObj(item);
+
     // if word is empty or 1 char, return
-    if (!item || item.length <= 1) return  yatesFisherSort(item);
+    if (!item || item.length <= 1) return originalObjects;
 
     // if all characters in the word are the same return
     const isUnique = new Set(item).size > 1;
-    if (!isUnique) return yatesFisherSort(item);
+    if (!isUnique) return originalObjects;
 
-    let shuffled = yatesFisherSort(item);
+    
+    let shuffled: LetterProps[] = [];
     let attempts = 0;
     const maxAttempts = 10;
 
     // Shuffle until it's different from the original and the current word
     while (attempts < maxAttempts) {
-      shuffled = yatesFisherSort(item);
+      shuffled = [...yatesFisherSort(item)];
       
-      // Is it actually different? 
-      // (Add 'word' to the condition if you are checking against a global state)
-      // if (shuffled !== item && shuffled !== yatesFisherSort(word)) {
-      if (shuffled !== yatesFisherSort(item)) {
-        break;
+      const shuffledString = shuffled.map(obj => obj.char).join(""); // get the shuffled string from shuffled Object
+    
+      // compare to make sure item is not the same with shuffled String
+      if (shuffledString !== item.toUpperCase()) {
+        break; 
       }
       attempts++;
     }
 
-    // console.log(shuffled)
-
-    return shuffled;
-  }, [word]);
+    return shuffled.length > 0 ? shuffled : originalObjects;
+  }, [wordsSolved]);
 
   // generate random number 
   const getRandomInRange = (min: number, max: number): number => {
@@ -515,7 +516,7 @@ function App() {
                               className={`
                                 flex items-center justify-center rounded-lg transition-all duration-200
                                 ${shuffledWord.length > 8 ? 'w-8 h-12 text-2xl' : 'w-12 h-16 text-4xl'}
-                                font-black uppercase border-b-4
+                                font-black uppercase
                                 ${correctAnswer === 2 ? "bg-red-500/20 border-red-500 text-red-500 shake" : 
                                   correctAnswer === 1 ? "bg-green-500/20 border-green-500 text-green-500" : 
                                   char ? "bg-[#255f6f] border-[#114f60] text-white" : "bg-gray-800/50 border-gray-800 text-gray-500"}
