@@ -2,26 +2,36 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { AppContext } from './context/AppContext';
 import { DIFFICULTY_LIST } from './constant/difficulty';
 import Score from './components/Score';
-import Header from './section/Header';
 import { yatesFisherSort } from './utils/yatesFisherSort';
 import Tooltip from './components/Tooltip';
-import { ArrowBigRight, CheckCircle2, Eye, ScrollText, Shuffle, X } from 'lucide-react';
-import { RULES } from './constant/rules';
+import { ArrowBigRight, Eye, ScrollText, Shuffle } from 'lucide-react';
 import type { LetterProps } from './utils/types';
 import { transformItemToObj } from './utils/transformItemToObj';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Navbar } from './section/Navbar';
+import Rules from './components/Rules';
+import Leaderboard from './components/Leaderboard';
+import { useAuth } from './hooks/useAuth';
+// import { useSaveScore } from './hooks/useSaveScore';
+// import { useLeaderboard } from './hooks/useLeaderboard';
+// import { useAuth } from './hooks/useAuth';
 
 function App() {
   // global states
   const {
     score, setScore,
     gameState, setGameState,
-    wordsSolved,setWordsSolved,
+    setWordsSolved,
     difficulty, setDifficulty,
     wordsCount, setWordsCount,
     index, setIndex,
     loading, setLoading
   } = useContext(AppContext);
+
+  // tanstack query
+  // const { mutate: saveScore } = useSaveScore();
+  // const { data: topScores, isLoading } = useLeaderboard();
+  const { user, isLoading:loadingUser, registerAnonymously } = useAuth()
 
   const timeSelection = difficulty === 0 ? 60 : difficulty === 1 ? 45 : 25;
 
@@ -33,6 +43,7 @@ function App() {
   const [correctAnswer, setCorrectAnswer] = useState<number>(0);
   const [timer, setTimer] = useState(timeSelection);
   const [showRules, setShowRules] = useState<boolean>(false)
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false)
   const [showWord, setShowWord] = useState<boolean>(false)
   const [usedIndices, setUsedIndices] = useState<string[]>([])
   const [error, setError] = useState<unknown>();
@@ -40,6 +51,13 @@ function App() {
   if (error) {
     throw error;
   }
+
+useEffect(() => {
+  // If there's no user session, register them silently
+  if (!user && !loadingUser) {
+    registerAnonymously();
+  }
+}, [user, loadingUser, registerAnonymously]);
   
   // points based on difficulty
   const pointsToAdd = difficulty === 0 ? 100 : difficulty === 1 ? 500 : 1000;
@@ -67,14 +85,14 @@ function App() {
       const shuffledString = shuffled.map(obj => obj.char).join(""); // get the shuffled string from shuffled Object
     
       // compare to make sure item is not the same with shuffled String
-      if (shuffledString !== item.toUpperCase()) {
+      if (shuffledString !== item) {
         break; 
       }
       attempts++;
     }
 
     return shuffled.length > 0 ? shuffled : originalObjects;
-  }, [wordsSolved]);
+  }, [word]);
 
   // generate random number 
   const getRandomInRange = (min: number, max: number): number => {
@@ -172,6 +190,12 @@ function App() {
   useEffect(() => {
     if (timer <= 0 && gameState === 'PLAYING') {
       if (wordsCount === 0) {
+        // saveScore({ 
+        //   username: username, 
+        //   score: score, 
+        //   solved: `${wordsSolved}/${words.length}`,
+        //   level: difficulty
+        // });
         setGameState('FINISHED');
       } else {
         skipWord();
@@ -302,15 +326,36 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1115] flex flex-col items-center justify-center p-6 font-sans text-white">
-      <Header />
+    <div className="relative min-h-screen bg-[#0F1115] flex flex-col items-center gap-10 font-sans text-white">
+      <Navbar
+        currentScore={score}
+        setShowLeaderboard={setShowLeaderboard}
+        // isLoading
+      />
       {/* Mesh Gradient Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-40">
         <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#255f6f] blur-[120px] rounded-full" />
         <div className="absolute bottom-0 right-0 w-[40%] h-[40%] bg-purple-900/20 blur-[100px] rounded-full" />
       </div>
 
-      <main className="relative z-10 w-full flex items-center justify-center max-w-md">
+      {/* RULES MODAL OVERLAY */}
+      {showRules && (
+        <Rules 
+          setShowRules={setShowRules}
+        />
+      )}
+
+      {/* Show Leaderboard  */}
+      {
+        showLeaderboard && (
+          <Leaderboard
+            isOpen={showLeaderboard} 
+            onClose={() => setShowLeaderboard(false)}
+          />
+        )
+      }
+
+      <main className="relative z-10 w-full flex items-center justify-center p-6 max-w-md">
         {gameState === 'START' ? (
           <div className="space-y-10 text-center">
               <div className='w-full relative flex flex-col divide-y divide-white/5 bg-[#1A1D23] rounded-[2.5rem] p-6 shadow-2xl border border-white/5'>
@@ -374,57 +419,12 @@ function App() {
               >
                 START GAME
               </button>
-
-              {/* RULES MODAL OVERLAY */}
-              {showRules && (
-                <div className="fixed inset-0 z-200 flex items-center justify-center p-6 backdrop-blur-md bg-black/60 animate-in fade-in duration-300">
-                  <div className="relative w-full max-w-sm bg-[#1A1D23] border border-white/10 rounded-[2.5rem] p-8 shadow-3xl animate-in zoom-in-95 duration-300">
-                    
-                    <button 
-                      onClick={() => setShowRules(false)}
-                      className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
-                    >
-                      <X size={20} />
-                    </button>
-
-                    <div className="text-left space-y-4">
-                      <div className="space-y-1">
-                        <h2 className="text-2xl font-black italic uppercase tracking-tighter">The Rules</h2>
-                        <div className="h-1 w-12 bg-teal-400 rounded-full" />
-                      </div>
-
-                      <div className='max-h-[50vh] overflow-y-scroll 
-                        [&::-webkit-scrollbar]:w-1
-                      [&::-webkit-scrollbar-track]:bg-[#1A1D23]
-                      [&::-webkit-scrollbar-thumb]:bg-teal-500/20
-                        [&::-webkit-scrollbar-thumb]:rounded-full
-                      hover:[&::-webkit-scrollbar-thumb]:bg-teal-500/50'>
-                        <ul className="space-y-4 py-4">
-                          {RULES.map((rule, index) => (
-                            <li key={index} className="flex gap-3 text-sm text-gray-400 leading-relaxed">
-                              <CheckCircle2 size={18} className="text-teal-400 shrink-0 mt-0.5" />
-                              {rule}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <button 
-                        onClick={() => setShowRules(false)}
-                        className="w-full py-4 bg-[#252932] hover:bg-teal-400/10 hover:text-teal-400 border border-white/5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
-                      >
-                        Got it
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
         ) : gameState === 'PLAYING' ? (
           <div className="space-y-6 pb-10 text-center">
               {loading ?
-                <div className="h-[65vh] flex flex-col items-center justify-center overflow-hidden">
+                <div className="h-[65vh] flex flex-col items-center justify-center gap-10 overflow-hidden">
                   {/* Ambient Background Glow */}
                   <div className="bg-teal-500/10 rounded-full blur-[120px] animate-pulse" />
 
