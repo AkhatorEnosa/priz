@@ -1,13 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../config/supabaseClient.config';
+import { useAuth } from './useAuth';
 
-export const useLeaderboard = () => {
+export const useMyScores = () => {
+    const { user } = useAuth();
+    const uid = user?.id;
+    
   return useQuery({
-    queryKey: ['leaderboard'],
+    queryKey: ['leaderboard', uid],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('leaderboard')
         .select('*')
+        .eq('user_id', uid)
         .order('score', { ascending: false })
         .limit(10);
 
@@ -15,6 +20,6 @@ export const useLeaderboard = () => {
       return data;
     },
     // Keep data fresh for 1 minute
-    staleTime: 60000, 
+    enabled: !!uid
   });
 };

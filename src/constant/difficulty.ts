@@ -1,7 +1,7 @@
 export const DIFFICULTY_LIST = [
     {
         code: 0,
-        title: "begginer",
+        title: "beginner",
         description: "For beginners. Words are 4-5 letters long. Timer is 1 minute.",
     },
     {

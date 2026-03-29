@@ -5,7 +5,7 @@ export const useSaveScore = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newScore: { username: string; score: number; solved: string, level: number }) => {
+    mutationFn: async (newScore: { user_id: string | undefined, username: string; score: number; solved: string, level: number }) => {
       const { data, error } = await supabase
         .from('leaderboard')
         .insert([newScore]);
@@ -16,6 +16,7 @@ export const useSaveScore = () => {
     onSuccess: () => {
       // Refresh the leaderboard automatically
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      console.log("Score saved successfully!");
     },
   });
 };

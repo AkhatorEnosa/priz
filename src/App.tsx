@@ -12,16 +12,15 @@ import { Navbar } from './section/Navbar';
 import Rules from './components/Rules';
 import Leaderboard from './components/Leaderboard';
 import { useAuth } from './hooks/useAuth';
-// import { useSaveScore } from './hooks/useSaveScore';
+import { useSaveScore } from './hooks/useSaveScore';
 // import { useLeaderboard } from './hooks/useLeaderboard';
-// import { useAuth } from './hooks/useAuth';
 
 function App() {
   // global states
   const {
     score, setScore,
     gameState, setGameState,
-    setWordsSolved,
+    wordsSolved, setWordsSolved,
     difficulty, setDifficulty,
     wordsCount, setWordsCount,
     index, setIndex,
@@ -29,9 +28,9 @@ function App() {
   } = useContext(AppContext);
 
   // tanstack query
-  // const { mutate: saveScore } = useSaveScore();
+  const { mutate: saveScore } = useSaveScore();
   // const { data: topScores, isLoading } = useLeaderboard();
-  const { user, isLoading:loadingUser, registerAnonymously } = useAuth()
+  const { user, username, isLoading:loadingUser, registerAnonymously } = useAuth()
 
   const timeSelection = difficulty === 0 ? 60 : difficulty === 1 ? 45 : 25;
 
@@ -146,6 +145,17 @@ useEffect(() => {
     if (index === words.length - 1 || wordsCount === 0) {
       setGameState('FINISHED');
       setWordsCount(5); // Reset for next game
+
+      if (score > 0) {
+        saveScore({ 
+          user_id: user?.id,
+          username: username, 
+          score: score, 
+          solved: `${wordsSolved}/${words.length}`,
+          level: difficulty
+        });
+      }
+      // save score 
     } else {
       // Load next word
       loadNextWord();
@@ -190,18 +200,23 @@ useEffect(() => {
   useEffect(() => {
     if (timer <= 0 && gameState === 'PLAYING') {
       if (wordsCount === 0) {
-        // saveScore({ 
-        //   username: username, 
-        //   score: score, 
-        //   solved: `${wordsSolved}/${words.length}`,
-        //   level: difficulty
-        // });
+        // save score 
+
+        if (score > 0) {
+          saveScore({
+            user_id: user?.id,
+            username: username,
+            score: score,
+            solved: `${wordsSolved}/${words.length}`,
+            level: difficulty
+          });
+        }
         setGameState('FINISHED');
       } else {
         skipWord();
       }
     }
-  }, [timer, wordsCount, gameState]);
+  }, [timer, wordsCount, gameState, user, username, score, wordsSolved, saveScore]);
 
   // disable scrollbar when rules is open
   useEffect(() => {
@@ -226,7 +241,8 @@ useEffect(() => {
     const isCorrect = inputValue.trim().toLowerCase() === word?.toLowerCase();
 
     if (isCorrect) {
-      setScore(prev => Math.max(prev + pointsToAdd, 0));
+      const newScoreValue = score + pointsToAdd;
+      setScore(newScoreValue);
       setTimer(timeSelection);
       setWordsSolved(prev => prev + 1);
       setCorrectAnswer(1);
@@ -237,6 +253,17 @@ useEffect(() => {
       setWordsCount(nextCount);
 
       if (nextCount <= 0 || index === words.length - 1) {
+
+        if (score > 0) {
+          // save score 
+          saveScore({
+            user_id: user?.id,
+            username: username,
+            score: score,
+            solved: `${wordsSolved}/${words.length}`,
+            level: difficulty
+          });
+        }
         // game over
         setTimeout(() => {
           setGameState('FINISHED');
@@ -328,7 +355,6 @@ useEffect(() => {
   return (
     <div className="relative min-h-screen bg-[#0F1115] flex flex-col items-center gap-10 font-sans text-white">
       <Navbar
-        currentScore={score}
         setShowLeaderboard={setShowLeaderboard}
         // isLoading
       />
@@ -448,7 +474,7 @@ useEffect(() => {
                         Count <span className="text-white">{`${index + 1}/${words?.length}`}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Level <span className="text-white">{difficulty === 0 ? 'EASY' : difficulty === 1 ? 'MEDIUM' : 'HARD'}</span>
+                        Level <span className="text-white">{difficulty === 0 ? 'BEGINNER' : difficulty === 1 ? 'INTERMEDIATE' : 'EXPERT'}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
                         Timer <span className="text-white">{`${timer > 59 ? "01:00" : `00:${timer < 10 ? `0${timer}` : timer}`}`}</span>
