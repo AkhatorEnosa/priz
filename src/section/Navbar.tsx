@@ -49,13 +49,13 @@ export const Navbar = ({ setShowLeaderboard }: { setShowLeaderboard: React.Dispa
           {username ? (
             <button 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-3 bg-[#252932] hover:bg-[#2d323d] border border-white/5 px-4 py-2 rounded-full shadow-inner transition-colors cursor-pointer group"
+              className="flex items-center gap-3 bg-[#252932] hover:bg-[#2d323d] border border-white/5 rounded-full shadow-inner transition-colors cursor-pointer group"
             >
-              <div className="flex flex-col items-end leading-none">
+              {/* <div className="flex flex-col items-end leading-none">
                 <span className="text-[10px] uppercase tracking-widest text-gray-400 group-hover:text-teal-400 transition-colors font-bold">
                   {username}
                 </span>
-              </div>
+              </div> */}
               <div className="w-8 h-8 rounded-full bg-linear-to-br from-gray-700 to-gray-800 flex items-center justify-center border border-white/10 group-hover:border-teal-500/50">
                 <UserIcon size={14} className="text-gray-400 group-hover:text-teal-400" />
               </div>
@@ -75,10 +75,10 @@ export const Navbar = ({ setShowLeaderboard }: { setShowLeaderboard: React.Dispa
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 className="absolute right-0 mt-3 w-48 bg-[#1a1d23] border border-white/10 rounded-2xl shadow-2xl p-2 z-60 overflow-hidden"
               >
-                {/* <div className="px-3 py-2 border-b border-white/5 mb-1">
-                  <p className="text-[9px] uppercase font-black text-gray-500 tracking-widest">Account Type</p>
-                  <p className="text-[11px] text-teal-400 font-bold uppercase">Stealth Mode</p>
-                </div> */}
+                <div className="px-3 py-2 border-b border-white/5 mb-1">
+                  <p className="text-[9px] uppercase font-black text-gray-500 tracking-widest">Account User</p>
+                  <p className="text-[11px] text-teal-400 font-bold uppercase">{username}</p>
+                </div>
 
                 {/* <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-colors text-left">
                   <UserCircle size={16} /> <span>Profile</span>

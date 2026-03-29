@@ -66,49 +66,83 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
                     scores !== undefined && scores.length <= 0 ?
                       <div className='w-full text-center text-[10px] flex justify-center  text-gray-500 uppercase font-bold tracking-widest p-4 rounded-xl border bg-[#252932] border-white/5'><span>No Ranking Data</span></div> :
                   (
-                    scores?.map((entry, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className={`flex items-center justify-between p-4 rounded-xl border ${
-                          index === 0 ? 'bg-teal-500/10 border-teal-500/20' : 'bg-[#252932] border-white/5'
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <span className={`w-6 text-center font-bold ${index < 3 ? 'text-teal-400' : 'text-gray-500'}`}>
-                            {index + 1}
+                    scores?.map((entry, index) => {
+                      // Helper to return trophy based on rank
+                      const getRankDisplay = (i: number) => {
+                        switch (i) {
+                          case 0: return "🥇";
+                          case 1: return "🥈";
+                          case 2: return "🥉";
+                          default: return i + 1;
+                        }
+                      };
+
+                      return (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`flex items-center justify-between p-4 rounded-xl border ${
+                            index === 0 ? 'bg-[#fad410]/10 border-[#fad410]/30 shadow-lg shadow-[#fad410]/5' :
+                            index === 1 ? 'bg-[#bababa]/10 border-[#bababa]/30 shadow-lg shadow-[#bababa]/5' :
+                            index === 2 ? 'bg-[#bd652a]/10 border-[#bd652a]/30 shadow-lg shadow-[#bd652a]/5' :
+                                          'bg-[#252932] border-white/5'
+                          }`}
+                        >
+                          <div className="flex items-center gap-4">
+                            {/* Trophy Column */}
+                            <span className={`w-8 text-center font-bold text-lg ${index === 0 ? 'scale-150' : index === 1 ? 'scale-125' : index === 2 ? 'scale-110' : 'text-gray-500 text-sm'}`}>
+                              {getRankDisplay(index)}
+                            </span>
+
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-bold text-gray-200 capitalize">
+                                  {entry.username}
+                                </span>
+                                {/* Optional: Add a small crown for #1 next to name */}
+                                {index === 0 && <span className="text-[10px] opacity-80">👑</span>}
+                              </div>
+                              <span className="text-[10px] text-gray-500 uppercase tracking-tighter">
+                                {entry.solved} Words Solved
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Difficulty Badge */}
+                          <span className={`w-fit py-1 px-2 uppercase text-[10px] font-bold rounded-full ${
+                            entry.level === 0 ? "bg-green-400/10 border border-green-500/50 text-green-500" : 
+                            entry.level === 1 ? "bg-blue-400/10 border border-blue-500/50 text-blue-500" : 
+                            "bg-orange-400/10 border border-orange-500/50 text-orange-500"
+                          }`}>
+                            {entry.level === 0 ? "Beginner" : entry.level === 1 ? "Intermediate" : "Expert"}
                           </span>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-gray-200">{entry.username}</span>
-                            <span className="text-[10px] text-gray-500 uppercase tracking-tighter">
-                              {entry.solved} Words Solved
+
+                          <div className="flex flex-col items-end">
+                            <span className={`text-lg font-mono font-black ${
+                              index === 0 ? 'text-[#fad410]' :
+                              index === 1 ? 'text-[#bababa]' :
+                              index === 2 ? 'text-[#bd652a]' :
+                              'text-white'
+                            }`}>
+                              {entry.score.toLocaleString()}
                             </span>
                           </div>
-                        </div>
-
-                        {/* level */}
-                        <span className={`w-fit py-1 px-2 uppercase text-[10px] rounded-full ${entry.level === 0 ? "bg-green-400/20 border border-green-600 text-green-600" : entry.level === 1 ? "bg-blue-400/20 border border-blue-600 text-blue-600" : "bg-orange-400/20 border border-orange-600 text-orange-600"}`}>{entry.level === 0 ? "Beginner" : entry.level === 1 ? "Intermediate" : "Expert"}</span>
-
-                        <div className="flex flex-col items-end">
-                          <span className="text-lg font-mono font-black text-white">
-                            {entry.score.toLocaleString()}
-                          </span>
-                        </div>
-                      </motion.div>
-                    ))
+                        </motion.div>
+                      );
+                    })
                   )
                 }
               </div>
             </div>
 
             {/* Footer */}
-            {/* <div className="bg-[#252932]/50 p-4 text-center border-t border-white/5">
+            <div className="bg-[#252932]/50 p-4 text-center border-t border-white/5">
               <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">
                 Updated in real-time
               </p>
-            </div> */}
+            </div>
           </motion.div>
         </>
       )}
