@@ -5,12 +5,11 @@ import Logo from '../components/Logo';
 import { useAuth } from '../hooks/useAuth';
 import { useMyScores } from '../hooks/useMyScores';
 import Tooltip from '../components/Tooltip';
-import Leaderboard from '../components/Leaderboard';
+// import Leaderboard from '../components/Leaderboard';
 
-export const Navbar = () => {
+export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispatch<React.SetStateAction<boolean>>}) => {
   const { username, isLoading } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false)
   const dropdownRef = useRef(null);
 
   const { data: myScores, isLoading: isLoadingScores } = useMyScores()
@@ -27,7 +26,7 @@ export const Navbar = () => {
     <motion.nav 
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 w-screen px-6 py-4 lg:px-10 lg:py-8 flex justify-between items-center backdrop-blur-sm border-white/5 z-50"
+      className="sticky top-0 w-screen px-6 py-4 lg:px-10 lg:py-8 flex justify-between items-center backdrop-blur-sm border-white/5 z-200"
     >
       <Logo />
 
@@ -89,9 +88,9 @@ export const Navbar = () => {
                   <Settings size={16} /> <span>Settings</span>
                 </button> */}
                 <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-colors text-left"
-                  onClick={() => setShowLeaderboard(prev => !prev)}
+                  onClick={() => setShowLeaderboard(true)}
                 >
-                  <Trophy size={16} /> <span>See Leaderboard</span>
+                  <Trophy size={16} /> <span>See Global Ranking</span>
                 </button>
                 <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-lg transition-colors text-left mt-1">
                   <LogOut size={16} /> <span>Log out</span>
@@ -110,19 +109,6 @@ export const Navbar = () => {
           <Tooltip description='See Leaderboard' />
         </button> */}
       </div>
-
-      {/* Show Leaderboard  */}
-      {
-        showLeaderboard && (
-          <Leaderboard
-            isOpen={showLeaderboard} 
-            onClose={() => {
-              setShowLeaderboard(false);
-              setIsDropdownOpen(false)
-            }}
-          />
-        )
-      }
     </motion.nav>
   );
 };

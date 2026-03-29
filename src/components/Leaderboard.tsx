@@ -24,14 +24,14 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className='fixed w-screen h-screen top-0 left-0 flex items-center justify-center z-100'>
+        <div className='fixed w-screen h-screen top-0 left-0 flex items-center justify-center z-200'>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed w-screen h-screen top-0 left-0 backdrop-blur-md bg-black/60 z-60"
+            className="fixed w-screen h-screen top-0 left-0 backdrop-blur-md bg-black/60"
           />
 
           {/* Modal Content */}

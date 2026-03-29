@@ -13,6 +13,7 @@ import Rules from './components/Rules';
 import { useAuth } from './hooks/useAuth';
 import { useSaveScore } from './hooks/useSaveScore';
 import { useMyScores } from './hooks/useMyScores';
+import Leaderboard from './components/Leaderboard';
 // import { useLeaderboard } from './hooks/useLeaderboard';
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
   const [correctAnswer, setCorrectAnswer] = useState<number>(0);
   const [timer, setTimer] = useState(timeSelection);
   const [showRules, setShowRules] = useState<boolean>(false)
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false)
   const [showWord, setShowWord] = useState<boolean>(false)
   const [usedIndices, setUsedIndices] = useState<string[]>([])
   const [error, setError] = useState<unknown>();
@@ -368,7 +370,9 @@ useEffect(() => {
 
   return (
     <div className="relative min-h-screen w-screen bg-[#0F1115] flex flex-col items-center gap-10 font-sans text-white">
-      <Navbar />
+      <Navbar
+        setShowLeaderboard={setShowLeaderboard}
+      />
       {/* Mesh Gradient Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-40">
         <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#255f6f] blur-[120px] rounded-full" />
@@ -381,6 +385,18 @@ useEffect(() => {
           setShowRules={setShowRules}
         />
       )}
+
+      {/* show Leaderboard */}
+      {
+        showLeaderboard && (
+          <Leaderboard
+            isOpen={showLeaderboard}
+            onClose={() => {
+              setShowLeaderboard(false);
+            }}
+          />
+        )
+      }
 
       <main className="relative z-10 grow w-full flex items-center justify-center p-6 max-w-md">
         {gameState === 'START' ? (

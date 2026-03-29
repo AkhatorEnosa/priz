@@ -8,6 +8,7 @@ export const useLeaderboard = () => {
       const { data, error } = await supabase
         .from('leaderboard')
         .select('*')
+        .order('level', { ascending: false})
         .order('score', { ascending: false })
         .limit(10);
 
