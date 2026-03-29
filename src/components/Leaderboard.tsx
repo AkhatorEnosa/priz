@@ -24,14 +24,14 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className='fixed w-screen h-screen top-0 left-0 flex items-center justify-center z-100'>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-60"
+            className="fixed w-screen h-screen top-0 left-0 backdrop-blur-md bg-black/60 z-60"
           />
 
           {/* Modal Content */}
@@ -39,7 +39,7 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md z-70 bg-[#1a1d23] border border-white/10 rounded-3xl shadow-2xl overflow-hidden"
+            className="w-[90%] max-w-md z-70 bg-[#1a1d23] border border-white/10 rounded-3xl shadow-2xl overflow-hidden"
           >
             <div className="p-6">
               {/* Header */}
@@ -144,7 +144,7 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
               </p>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

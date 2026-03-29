@@ -10,7 +10,6 @@ import { transformItemToObj } from './utils/transformItemToObj';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Navbar } from './section/Navbar';
 import Rules from './components/Rules';
-import Leaderboard from './components/Leaderboard';
 import { useAuth } from './hooks/useAuth';
 import { useSaveScore } from './hooks/useSaveScore';
 import { useMyScores } from './hooks/useMyScores';
@@ -53,7 +52,6 @@ function App() {
   const [correctAnswer, setCorrectAnswer] = useState<number>(0);
   const [timer, setTimer] = useState(timeSelection);
   const [showRules, setShowRules] = useState<boolean>(false)
-  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false)
   const [showWord, setShowWord] = useState<boolean>(false)
   const [usedIndices, setUsedIndices] = useState<string[]>([])
   const [error, setError] = useState<unknown>();
@@ -112,7 +110,7 @@ useEffect(() => {
   // get word from api and set it to word state
   const fetchWord = async () => {
     if (gameState === 'PLAYING') {
-      const urlAddon = difficulty === 0 ? `diff=1&length=${getRandomInRange(4, 5)}` : difficulty === 1 ? `diff=3&length=${getRandomInRange(6, 8)}` : `diff=5&length=${getRandomInRange(9, 12)}`;
+      const urlAddon = difficulty === 0 ? `diff=1&length=${getRandomInRange(4, 5)}` : difficulty === 1 ? `diff=3&length=${getRandomInRange(6, 8)}` : `diff=5&length=${getRandomInRange(9, 10)}`;
       setLoading(true);
       try {
         const response = await fetch(`https://random-word-api.herokuapp.com/word?number=${wordsCount}&${urlAddon}`);
@@ -370,10 +368,7 @@ useEffect(() => {
 
   return (
     <div className="relative min-h-screen w-screen bg-[#0F1115] flex flex-col items-center gap-10 font-sans text-white">
-      <Navbar
-        setShowLeaderboard={setShowLeaderboard}
-        // isLoading
-      />
+      <Navbar />
       {/* Mesh Gradient Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-40">
         <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#255f6f] blur-[120px] rounded-full" />
@@ -386,16 +381,6 @@ useEffect(() => {
           setShowRules={setShowRules}
         />
       )}
-
-      {/* Show Leaderboard  */}
-      {
-        showLeaderboard && (
-          <Leaderboard
-            isOpen={showLeaderboard} 
-            onClose={() => setShowLeaderboard(false)}
-          />
-        )
-      }
 
       <main className="relative z-10 grow w-full flex items-center justify-center p-6 max-w-md">
         {gameState === 'START' ? (

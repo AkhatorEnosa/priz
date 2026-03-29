@@ -5,10 +5,12 @@ import Logo from '../components/Logo';
 import { useAuth } from '../hooks/useAuth';
 import { useMyScores } from '../hooks/useMyScores';
 import Tooltip from '../components/Tooltip';
+import Leaderboard from '../components/Leaderboard';
 
-export const Navbar = ({ setShowLeaderboard }: { setShowLeaderboard: React.Dispatch<React.SetStateAction<boolean>> }) => {
+export const Navbar = () => {
   const { username, isLoading } = useAuth();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false)
   const dropdownRef = useRef(null);
 
   const { data: myScores, isLoading: isLoadingScores } = useMyScores()
@@ -108,6 +110,19 @@ export const Navbar = ({ setShowLeaderboard }: { setShowLeaderboard: React.Dispa
           <Tooltip description='See Leaderboard' />
         </button> */}
       </div>
+
+      {/* Show Leaderboard  */}
+      {
+        showLeaderboard && (
+          <Leaderboard
+            isOpen={showLeaderboard} 
+            onClose={() => {
+              setShowLeaderboard(false);
+              setIsDropdownOpen(false)
+            }}
+          />
+        )
+      }
     </motion.nav>
   );
 };
