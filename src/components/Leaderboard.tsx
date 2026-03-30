@@ -107,17 +107,16 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
                               <span className="text-[10px] text-gray-500 uppercase tracking-tighter">
                                 {entry.solved} Words Solved
                               </span>
+                              {/* Difficulty Badge */}
+                              <span className={`w-fit py-1 px-2 uppercase text-[8px] font-bold rounded-full ${
+                                entry.level === 0 ? "bg-green-400/10 border border-green-500/50 text-green-500" : 
+                                entry.level === 1 ? "bg-blue-400/10 border border-blue-500/50 text-blue-500" : 
+                                "bg-orange-400/10 border border-orange-500/50 text-orange-500"
+                              }`}>
+                                {entry.level === 0 ? "Beginner" : entry.level === 1 ? "Intermediate" : "Expert"}
+                              </span>
                             </div>
                           </div>
-
-                          {/* Difficulty Badge */}
-                          <span className={`w-fit py-1 px-2 uppercase text-[10px] font-bold rounded-full ${
-                            entry.level === 0 ? "bg-green-400/10 border border-green-500/50 text-green-500" : 
-                            entry.level === 1 ? "bg-blue-400/10 border border-blue-500/50 text-blue-500" : 
-                            "bg-orange-400/10 border border-orange-500/50 text-orange-500"
-                          }`}>
-                            {entry.level === 0 ? "Beginner" : entry.level === 1 ? "Intermediate" : "Expert"}
-                          </span>
 
                           <div className="flex flex-col items-end">
                             <span className={`text-lg font-mono font-black ${

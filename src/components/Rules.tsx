@@ -3,7 +3,7 @@ import { RULES } from "../constant/rules"
 
 const Rules = ({setShowRules} : { setShowRules: React.Dispatch<React.SetStateAction<boolean>>}) => {
   return (
-    <div className="fixed inset-0 top-0 left-0 flex items-center justify-center p-6 backdrop-blur-md bg-black/60 z-100 duration-300">
+    <div className="fixed inset-0 top-0 left-0 flex items-center justify-center p-6 backdrop-blur-md bg-black/60 z-500 duration-300">
           <div className="relative w-full max-w-sm bg-[#1A1D23] border border-white/10 rounded-[2.5rem] p-8 shadow-3xl">
             <button 
                 onClick={() => setShowRules(false)}

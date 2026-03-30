@@ -37,7 +37,7 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
           <span className="text-lg font-mono font-bold text-teal-400">
             {isLoadingScores ? 
               <div className="h-10 w-32 bg-gray-700 animate-pulse rounded-full" /> :
-              getHighestScore() == null ? 0 : getHighestScore().score
+              getHighestScore() == null ? 0 : getHighestScore().score.toLocaleString()
             }
           </span>
           {getHighestScore() && <Tooltip
@@ -74,7 +74,7 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-3 w-48 bg-[#1a1d23] border border-white/10 rounded-2xl shadow-2xl p-2 z-60 overflow-hidden"
+                className="absolute right-0 mt-3 w-60 bg-[#1a1d23] border border-white/10 rounded-2xl shadow-2xl p-2 z-60 overflow-hidden"
               >
                 <div className="px-3 py-2 border-b border-white/5 mb-1">
                   <p className="text-[9px] uppercase font-black text-gray-500 tracking-widest">Account User</p>
