@@ -1,12 +1,15 @@
 import { CheckCircle2, X } from "lucide-react"
 import { RULES } from "../constant/rules"
+import useSound from "use-sound";
+import clickSfx from '../assets/sfx/mouse-click.mp3';
 
 const Rules = ({setShowRules} : { setShowRules: React.Dispatch<React.SetStateAction<boolean>>}) => {
+  const [playClick] = useSound(clickSfx, { volume: 1 });
   return (
     <div className="fixed inset-0 top-0 left-0 flex items-center justify-center p-6 backdrop-blur-md bg-black/60 z-500 duration-300">
           <div className="relative w-full max-w-sm bg-[#1A1D23] border border-white/10 rounded-[2.5rem] p-8 shadow-3xl">
             <button 
-                onClick={() => setShowRules(false)}
+                  onClick={() => { setShowRules(false); playClick()}}
                 className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
             >
                 <X size={20} />
@@ -35,7 +38,7 @@ const Rules = ({setShowRules} : { setShowRules: React.Dispatch<React.SetStateAct
                 </div>
 
                 <button 
-                onClick={() => setShowRules(false)}
+                onClick={() => { setShowRules(false); playClick()}}
                 className="w-full py-4 bg-[#252932] hover:bg-teal-400/10 hover:text-teal-400 border border-white/5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
                 >
                 Got it

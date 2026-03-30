@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react'; // Added useState
 import { AppContext } from '../context/AppContext';
-// import Leaderboard from './Leaderboad';
+import useSound from 'use-sound';
+import clickSfx from '../assets/sfx/mouse-click.mp3';
 
 interface Props {
   words: string[];
@@ -12,8 +13,12 @@ const Score = ({ restartGame, resetGame, words } : Props) => {
   const { gameState, score, wordsSolved, difficulty } = useContext(AppContext);
   const [copied, setCopied] = useState(false);
 
+  // sound effects
+  const [playClick] = useSound(clickSfx, { volume: 1 });
+
   // share logic
   const handleShare = async () => {
+    playClick();
     const accuracy = Math.floor((wordsSolved / words.length) * 100);
     const shareText = `🧩 I just scored ${score.toLocaleString()} points on PrizQuiz! \n🏆 Solved: ${wordsSolved}/${words.length} words on ${difficulty} level with (${accuracy}% accuracy.)\nCan you beat my score?`;
     

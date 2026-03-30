@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AppContext } from './context/AppContext';
-import Score from './components/Score';
+import Score from './section/Score';
 import { yatesFisherSort } from './utils/yatesFisherSort';
 import type { LetterProps } from './utils/types';
 import { transformItemToObj } from './utils/transformItemToObj';
@@ -12,7 +12,12 @@ import { useMyScores } from './hooks/useMyScores';
 import Leaderboard from './components/Leaderboard';
 import Start from './section/Start';
 import Playing from './section/Playing';
-
+import useSound from 'use-sound';
+import clickSfx from './assets/sfx/mouse-click.mp3';
+import correctSfx from './assets/sfx/correct.mp3';
+import wrongSfx from './assets/sfx/wrong.mp3';
+import winSfx from './assets/sfx/win.mp3';
+import gameSfx from './assets/sfx/game-sound.mp3';
 
 function App() {
   // global states
@@ -55,6 +60,14 @@ function App() {
   const [showWord, setShowWord] = useState<boolean>(false)
   const [usedIndices, setUsedIndices] = useState<string[]>([])
   const [error, setError] = useState<unknown>();
+
+  // sound effects
+  const [playClick] = useSound(clickSfx, { volume: 1 });
+  const [playCorrect] = useSound(correctSfx, { volume: 1 });
+  const [playWrong] = useSound(wrongSfx, { volume: 1 });
+  const [playReveal] = useSound(correctSfx, { volume: 0.5 });
+  const [playWin] = useSound(winSfx, { volume: 1 });
+  const [playGame, { stop }] = useSound(gameSfx, { volume: 1 });
 
   if (error) {
     throw error;
@@ -147,17 +160,17 @@ useEffect(() => {
 
   // skip word function
   const skipWord = () => {
+    playClick()
     setTimer(timeSelection);
     setWordsCount(prev => prev - 1); // Reduce total word count
       
     // Check if the game should end
     if (index === words.length - 1 || wordsCount === 0) {
+      
       setGameState('FINISHED');
       setWordsCount(5); // Reset for next game
 
       if (score > 0) {
-        
-        console.log(score)
         saveScore({ 
           user_id: user?.id,
           username: username, 
@@ -181,6 +194,7 @@ useEffect(() => {
 
   // handle show word function
   const revealWord = () => {
+    playReveal()
     // setShuffledWord(word ?? "")
     setShowWord(true)
     setInputValue("")
@@ -193,6 +207,17 @@ useEffect(() => {
     };
     fetchData();
   }, [gameState]);
+
+  useEffect(() => {
+    if (gameState === 'FINISHED') {
+      playWin();
+      stop();
+    } else {
+      playGame();
+    }
+
+    console.log("GameState changed:", gameState);
+  }, [gameState, playGame, playWin]);
 
   // Countdown Timer Logic
   useEffect(() => {
@@ -214,8 +239,6 @@ useEffect(() => {
         // save score 
 
         if (score > 0) {
-          
-        console.log(score)
           saveScore({
             user_id: user?.id,
             username: username,
@@ -224,6 +247,7 @@ useEffect(() => {
             level: difficulty
           });
         }
+        ;
         setGameState('FINISHED');
       } else {
         skipWord();
@@ -254,6 +278,7 @@ useEffect(() => {
     const isCorrect = inputValue.trim().toLowerCase() === word?.toLowerCase();
 
     if (isCorrect) {
+      playCorrect();
       const finalScore = score + pointsToAdd;
       const finalSolved = wordsSolved + 1;
 
@@ -266,7 +291,6 @@ useEffect(() => {
       setWordsCount(prev => prev - 1);
 
       if (index === words.length - 1 || wordsCount === 0) {
-        console.log(finalSolved) // problem here
 
         if (finalSolved > 0) {
           // save score 
@@ -280,6 +304,7 @@ useEffect(() => {
         }
         // game over
         setTimeout(() => {
+          ;
           setGameState('FINISHED');
           setWordsCount(5);
           setCorrectAnswer(0);
@@ -295,6 +320,7 @@ useEffect(() => {
 
     } else {
       // Wrong answer logic
+      playWrong();
       setCorrectAnswer(2)
       
       setTimeout(() => {
@@ -306,6 +332,7 @@ useEffect(() => {
   };
 
   const handleLetterClick = (letter: string, id: string) => {
+    playClick();
     if (usedIndices.includes(id)) {
       // locate where this specific index is in the usedIndices array
       const letterPos = usedIndices.indexOf(id);
@@ -325,6 +352,7 @@ useEffect(() => {
 
   // reset game function
   const reset = () => {
+    playClick();
     setScore(0);
     setTimer(0);
     setInputValue("");
@@ -347,6 +375,7 @@ useEffect(() => {
   }
 
   const restartGame = () => {
+    playClick();
     setScore(0);
     setTimer(timeSelection)
     setWordsSolved(0);
@@ -391,6 +420,7 @@ useEffect(() => {
             isOpen={showLeaderboard}
             onClose={() => {
               setShowLeaderboard(false);
+              playClick();
             }}
           />
         )

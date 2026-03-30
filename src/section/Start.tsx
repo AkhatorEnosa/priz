@@ -2,6 +2,8 @@ import { ArrowRight, Gamepad2, ScrollText, Trophy } from 'lucide-react'
 import Tooltip from '../components/Tooltip';
 import { DIFFICULTY_LIST } from '../constant/difficulty';
 import { motion } from 'framer-motion';
+import useSound from 'use-sound';
+import clickSfx from '../assets/sfx/mouse-click.mp3';
 
 interface StartProps {
     setShowRules: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,13 +18,15 @@ interface StartProps {
 }
 
 
-const Start = ({username, isLoadingScores, getHighestScore, difficulty, wordsCount, setDifficulty, setWordsCount, setShowRules, setGameState } : StartProps) => {
+const Start = ({ username, isLoadingScores, getHighestScore, difficulty, wordsCount, setDifficulty, setWordsCount, setShowRules, setGameState }: StartProps) => {
+  const [playClick] = useSound(clickSfx, { volume: 1 });
+
   return (
     
           <div className="space-y-8 text-center max-w-md mx-auto">
             {/* TOP HERO ICON (Adds visual height) */}
             <div className="-mb-5 z-10 relative">
-              <div className="mx-auto size-16 bg-teal-500/20 border border-teal-500/30 rounded-2xl rotate-12 flex items-center justify-center shadow-2xl shadow-teal-500/20">
+              <div className="mx-auto size-16 bg-[#0b3a38] border border-teal-500/30 rounded-2xl rotate-12 flex items-center justify-center shadow-2xl shadow-teal-500/20">
                 <Gamepad2 className="size-8 text-teal-400 -rotate-12" />
               </div>
             </div>
@@ -31,7 +35,10 @@ const Start = ({username, isLoadingScores, getHighestScore, difficulty, wordsCou
               
               {/* Rules Trigger Button */}
               <button 
-                onClick={() => setShowRules(true)}
+                onClick={() => {
+                  setShowRules(true); 
+                  playClick();
+                }}
                 className="group absolute right-6 top-6 size-10 flex justify-center items-center text-gray-500 hover:text-teal-400 transition-colors"
               >
                 <ScrollText className="size-5" />
@@ -42,7 +49,7 @@ const Start = ({username, isLoadingScores, getHighestScore, difficulty, wordsCou
               <div className="pb-8 flex flex-col items-center">
                 <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-1">Authenticated as</span>
                 <h2 className="text-xl font-black text-white capitalize tracking-tight">
-                  {username || "Pilot"}
+                  {username || "Player"}
                 </h2>
                 <div className="mt-2 px-3 py-1 bg-white/5 rounded-full border border-white/5 flex items-center gap-2">
                   <Trophy className="size-3 text-yellow-500" />
@@ -60,7 +67,10 @@ const Start = ({username, isLoadingScores, getHighestScore, difficulty, wordsCou
                   {DIFFICULTY_LIST.map((level) => (
                     <button
                       key={level.code}
-                      onClick={() => setDifficulty(level.code)}
+                      onClick={() => {
+                        setDifficulty(level.code);
+                        playClick();
+                      }}
                       className={`group flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${
                         difficulty === level.code 
                           ? 'border-teal-400/50 text-teal-400 bg-teal-400/10 shadow-[0_0_20px_rgba(45,212,191,0.1)]' 
@@ -82,7 +92,10 @@ const Start = ({username, isLoadingScores, getHighestScore, difficulty, wordsCou
                   {[5, 10, 20].map((count) => (
                     <button
                       key={count}
-                      onClick={() => setWordsCount(count)}
+                      onClick={() => {
+                        setWordsCount(count);
+                        playClick();
+                      }}
                       className={`relative flex flex-col items-center transition-all ${
                         wordsCount === count ? 'text-white scale-110' : 'text-gray-600 hover:text-gray-400'
                       }`}
@@ -99,7 +112,10 @@ const Start = ({username, isLoadingScores, getHighestScore, difficulty, wordsCou
             </div>
             
             <button 
-              onClick={() => setGameState('PLAYING')}
+              onClick={() => {
+                setGameState('PLAYING');
+                playClick()
+              }}
               className="group w-full py-6 bg-white text-black font-black text-xl rounded-full shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
             >
               START MISSION

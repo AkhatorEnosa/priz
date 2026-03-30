@@ -5,12 +5,15 @@ import Logo from '../components/Logo';
 import { useAuth } from '../hooks/useAuth';
 import { useMyScores } from '../hooks/useMyScores';
 import Tooltip from '../components/Tooltip';
+import useSound from 'use-sound';
+import clickSfx from '../assets/sfx/mouse-click.mp3';
 // import Leaderboard from '../components/Leaderboard';
 
 export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispatch<React.SetStateAction<boolean>>}) => {
   const { username, isLoading } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef(null);
+  const [playClick] = useSound(clickSfx, { volume: 1 });
 
   const { data: myScores, isLoading: isLoadingScores } = useMyScores()
 
@@ -49,7 +52,10 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
         <div className="relative" ref={dropdownRef}>
           {username ? (
             <button 
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={() => {
+                setIsDropdownOpen(!isDropdownOpen);
+                playClick();
+              }}
               className="flex items-center gap-3 bg-[#252932] hover:bg-[#2d323d] border border-white/5 rounded-full shadow-inner transition-colors cursor-pointer group"
             >
               {/* <div className="flex flex-col items-end leading-none">
@@ -65,7 +71,10 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
             <div className="h-10 w-32 bg-gray-700 animate-pulse rounded-full" />
           )}
 
-          { isDropdownOpen && <div className='fixed inset-0 h-screen' onClick={() => setIsDropdownOpen(!isDropdownOpen)}></div> }
+          {isDropdownOpen && <div className='fixed inset-0 h-screen' onClick={() => {
+            setIsDropdownOpen(!isDropdownOpen);
+            playClick();
+          }}></div>}
 
           {/* Dropdown Menu */}
           <AnimatePresence>
@@ -88,11 +97,18 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
                   <Settings size={16} /> <span>Settings</span>
                 </button> */}
                 <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-colors text-left"
-                  onClick={() => setShowLeaderboard(true)}
+                  onClick={() => {
+                    setShowLeaderboard(true);
+                    playClick();
+                  }}
                 >
                   <Trophy size={16} /> <span>See Global Ranking</span>
                 </button>
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-lg transition-colors text-left mt-1">
+                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-lg transition-colors text-left mt-1"
+                  onClick={() => {
+                    playClick();
+                  }}
+                >
                   <LogOut size={16} /> <span>Log out</span>
                 </button>
               </motion.div>

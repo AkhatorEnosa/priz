@@ -83,7 +83,7 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className={`flex items-center justify-between p-4 rounded-xl border ${
+                          className={`flex items-center justify-between p-1 px-2 rounded-xl border ${
                             index === 0 ? 'bg-[#fad410]/10 border-[#fad410]/30 shadow-lg shadow-[#fad410]/5' :
                             index === 1 ? 'bg-[#bababa]/10 border-[#bababa]/30 shadow-lg shadow-[#bababa]/5' :
                             index === 2 ? 'bg-[#bd652a]/10 border-[#bd652a]/30 shadow-lg shadow-[#bd652a]/5' :
@@ -92,7 +92,7 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
                         >
                           <div className="flex items-center gap-4">
                             {/* Trophy Column */}
-                            <span className={`w-8 text-center font-bold text-lg ${index === 0 ? 'scale-150' : index === 1 ? 'scale-125' : index === 2 ? 'scale-110' : 'text-gray-500 text-sm'}`}>
+                            <span className={`text-center font-bold text-lg ${index === 0 ? 'scale-150' : index === 1 ? 'scale-125' : index === 2 ? 'scale-110' : 'text-gray-500 text-sm'}`}>
                               {getRankDisplay(index)}
                             </span>
 
@@ -102,13 +102,13 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
                                   {entry.username}
                                 </span>
                                 {/* Optional: Add a small crown for #1 next to name */}
-                                {index === 0 && <span className="text-[10px] opacity-80">👑</span>}
+                                {/* {index === 0 && <span className="text-[10px] opacity-80">👑</span>} */}
                               </div>
                               <span className="text-[10px] text-gray-500 uppercase tracking-tighter">
                                 {entry.solved} Words Solved
                               </span>
                               {/* Difficulty Badge */}
-                              <span className={`w-fit py-1 px-2 uppercase text-[8px] font-bold rounded-full ${
+                              <span className={`w-fit py-1 px-2 uppercase mt-1 text-[8px] font-bold rounded-full ${
                                 entry.level === 0 ? "bg-green-400/10 border border-green-500/50 text-green-500" : 
                                 entry.level === 1 ? "bg-blue-400/10 border border-blue-500/50 text-blue-500" : 
                                 "bg-orange-400/10 border border-orange-500/50 text-orange-500"

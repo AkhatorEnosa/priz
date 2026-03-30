@@ -3,6 +3,8 @@ import type { LetterProps } from "../utils/types";
 import { transformItemToObj } from "../utils/transformItemToObj";
 import Tooltip from "../components/Tooltip";
 import { ArrowBigRight, Eye, Shuffle } from "lucide-react";
+import useSound from "use-sound";
+import clickSfx from '../assets/sfx/mouse-click.mp3';
 
 interface PlayingProps {
     score: number;
@@ -29,6 +31,8 @@ interface PlayingProps {
 }
 
 const Playing = ({ score, index, words, difficulty, timer, loading, word, shuffledWord, showWord, inputValue, correctAnswer, usedIndices, wordsCount, pointsToAdd, setInputValue, setShuffledWord, handleLetterClick, shuffleWord, revealWord, skipWord, reset} : PlayingProps) => {
+  const [playClick] = useSound(clickSfx, { volume: 1 });
+  
   return (
     <div className="space-y-6 pb-10 text-center">
     {loading ?
@@ -142,38 +146,41 @@ const Playing = ({ score, index, words, difficulty, timer, loading, word, shuffl
                 <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex flex-1 gap-2">
                     <button 
-                    className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
-                    onClick={() => setShuffledWord(shuffleWord(word ?? ''))}
-                    disabled={showWord}
+                        className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
+                        onClick={() => {
+                            setShuffledWord(shuffleWord(word ?? ''))
+                            playClick()
+                        }}
+                        disabled={showWord}
                     >
-                    <Shuffle className={`text-gray-600 ${showWord ? "" : "group-hover:text-teal-400"} transition-colors`}/>
-                    
-                    <Tooltip
-                        description={"Shuffle the letters for a fresh perspective"}
-                    />
+                        <Shuffle className={`text-gray-600 ${showWord ? "" : "group-hover:text-teal-400"} transition-colors`}/>
+                        
+                        <Tooltip
+                            description={"Shuffle the letters for a fresh perspective"}
+                        />
                     </button>
                     
                     <button 
-                    className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
-                    onClick={revealWord}
+                        className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] ${showWord ? "" : "hover:bg-[#2e333d]"} border border-white/5 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase`}
+                        onClick={revealWord}
                     >
-                    <Eye className={`text-gray-600 ${showWord ? "text-teal-400" : "group-hover:text-teal-400"} transition-colors`} />
-                    
-                    <Tooltip
-                        description={"Reveal the hidden word"}
-                    />
+                        <Eye className={`text-gray-600 ${showWord ? "text-teal-400" : "group-hover:text-teal-400"} transition-colors`} />
+                        
+                        <Tooltip
+                            description={"Reveal the hidden word"}
+                        />
                     </button>
 
                     <button 
-                    className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black  tracking-widest transition-all uppercase`}
-                    onClick={skipWord}
+                        className={`relative group flex-1 py-4 px-4 flex items-center justify-center bg-[#252932] hover:bg-[#2e333d] border border-white/5 rounded-xl text-[10px] font-black  tracking-widest transition-all uppercase`}
+                        onClick={skipWord}
                     >
                         <div className={`absolute left-0 rounded-xl top-0 w-full h-full ${showWord && "animate animate-pulse bg-teal-400/40"} z-30`}></div>
                         <ArrowBigRight className={`relative ${showWord ? "text-white/50" : "text-gray-600"} group-hover:text-teal-400 transition-colors z-50`} />
                     
-                    <Tooltip
-                        description={`Give up on this word and move to the next one. ${difficulty === 2 ? `(Penalty: - ${pointsToAdd} points)` : ""}`}
-                    />
+                        <Tooltip
+                            description={`Give up on this word and move to the next one. ${difficulty === 2 ? `(Penalty: - ${pointsToAdd} points)` : ""}`}
+                        />
                     </button>
                 </div>
                 
