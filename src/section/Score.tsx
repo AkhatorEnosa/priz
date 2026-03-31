@@ -1,15 +1,16 @@
-import { useContext, useState } from 'react'; // Added useState
-import { AppContext } from '../context/AppContext';
+import { useContext, useState } from 'react';
 import useSound from 'use-sound';
 import clickSfx from '../assets/sfx/mouse-click.mp3';
+import { AppContext } from '../context/AppContextDefinition';
 
 interface Props {
   words: string[];
   restartGame: () => void;
   resetGame: () => void;
+  getHighestScore: () => { score: number; level: number; solved: number };
 }
 
-const Score = ({ restartGame, resetGame, words } : Props) => {
+const Score = ({ restartGame, resetGame, words, getHighestScore } : Props) => {
   const { gameState, score, wordsSolved, difficulty } = useContext(AppContext);
   const [copied, setCopied] = useState(false);
 
@@ -68,7 +69,7 @@ const Score = ({ restartGame, resetGame, words } : Props) => {
               <div className="relative z-10 space-y-10">
                 <div className="text-center">
                   <span className="text-[10px] text-gray-500 font-bold tracking-[0.4em] uppercase">Total Points</span>
-                  <div className="text-7xl font-black text-white mt-2 tabular-nums">
+                  <div className={`text-7xl font-black ${getHighestScore() && score >= getHighestScore()?.score ? "text-[#fad410]" : "text-white"} mt-2 tabular-nums`}>
                     {score.toLocaleString()}
                   </div>
                 </div>

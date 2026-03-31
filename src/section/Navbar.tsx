@@ -1,21 +1,25 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, User as UserIcon, LogOut } from 'lucide-react';
+import { Trophy, User as UserIcon, LogOut, VolumeX, Volume2 } from 'lucide-react';
 import Logo from '../components/Logo';
 import { useAuth } from '../hooks/useAuth';
 import { useMyScores } from '../hooks/useMyScores';
 import Tooltip from '../components/Tooltip';
 import useSound from 'use-sound';
 import clickSfx from '../assets/sfx/mouse-click.mp3';
+import { AppContext } from '../context/AppContextDefinition';
 // import Leaderboard from '../components/Leaderboard';
 
 export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispatch<React.SetStateAction<boolean>>}) => {
+  const { isMuted, setIsMuted } = useContext(AppContext);
+
   const { username, isLoading } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef(null);
-  const [playClick] = useSound(clickSfx, { volume: 1 });
+  const [playClick] = useSound(clickSfx, { volume: 1, soundEnabled: !isMuted });
 
   const { data: myScores, isLoading: isLoadingScores } = useMyScores()
+
 
   const getHighestScore = () => {
     if (myScores && myScores.length > 0) {
@@ -92,11 +96,39 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
 
                 {/* <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-colors text-left">
                   <UserCircle size={16} /> <span>Profile</span>
-                </button>
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-colors text-left">
-                  <Settings size={16} /> <span>Settings</span>
                 </button> */}
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-colors text-left"
+
+                {/* game sound toggle  */}
+                <button className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-bold rounded-xl transition-all group hover:bg-white/5"
+                  onClick={() => {
+                   setIsMuted(prev => !prev);
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Dynamic Icon: Volume2 for ON, VolumeX for OFF */}
+                    {isMuted ? (
+                      <VolumeX size={16} className="text-red-400" />
+                    ) : (
+                      <Volume2 size={16} className="text-teal-400" />
+                    )}
+                    
+                    <span className={isMuted ? "text-gray-500" : "text-gray-300"}>
+                      Game Sounds
+                    </span>
+                  </div>
+
+                  {/* Toggle Indicator */}
+                  <div className={`text-[9px] px-2 py-0.5 rounded-md uppercase tracking-tighter ${
+                    isMuted 
+                      ? "bg-red-400/10 text-red-400 border border-red-400/20" 
+                      : "bg-teal-400/10 text-teal-400 border border-teal-400/20"
+                  }`}>
+                    {isMuted ? "Off" : "On"}
+                  </div>
+                </button>
+
+                {/* leaderboard button  */}
+                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-gray-300 rounded-xl transition-all group hover:bg-white/5"
                   onClick={() => {
                     setShowLeaderboard(true);
                     playClick();
@@ -104,7 +136,7 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
                 >
                   <Trophy size={16} /> <span>See Global Ranking</span>
                 </button>
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-400/10 rounded-lg transition-colors text-left mt-1"
+                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-red-400 hover:bg-red-400/10 rounded-lg transition-colors text-left mt-1"
                   onClick={() => {
                     playClick();
                   }}

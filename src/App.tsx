@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { AppContext } from './context/AppContext';
 import Score from './section/Score';
 import { yatesFisherSort } from './utils/yatesFisherSort';
 import type { LetterProps } from './utils/types';
@@ -17,7 +16,10 @@ import clickSfx from './assets/sfx/mouse-click.mp3';
 import correctSfx from './assets/sfx/correct.mp3';
 import wrongSfx from './assets/sfx/wrong.mp3';
 import winSfx from './assets/sfx/win.mp3';
-import gameSfx from './assets/sfx/game-sound.mp3';
+import gameSfx from './assets/sfx/game-sound.mp3'; 
+import newRecordSfx from './assets/sfx/new-record.mp3';
+import gameOverSfx from './assets/sfx/game-over.mp3';
+import { AppContext } from './context/AppContextDefinition';
 
 function App() {
   // global states
@@ -28,23 +30,24 @@ function App() {
     difficulty, setDifficulty,
     wordsCount, setWordsCount,
     index, setIndex,
-    loading, setLoading
+    loading, setLoading,
+    isMuted
   } = useContext(AppContext);
 
   // tanstack query
   const { mutate: saveScore } = useSaveScore();
   // const { data: topScores, isLoading } = useLeaderboard();
-  const { user, username, isLoading:loadingUser, registerAnonymously } = useAuth()
+  const { user, username, isLoading: loadingUser, registerAnonymously } = useAuth()
   const { data: myScores, isLoading: isLoadingScores } = useMyScores()
 
   // get highest score from my scores
-  const getHighestScore = () => {
+  const getHighestScore = useCallback(() => {
     if (myScores && myScores.length > 0) {
-      return myScores?.reduce((prev, current) => (prev.score > current.score) ? prev :  current)
+      return myScores?.reduce((prev, current) => (prev.score > current.score) ? prev : current)
     } else {
       return null
     }
-  }
+  }, [myScores])
 
   const timeSelection = difficulty === 0 ? 60 : difficulty === 1 ? 45 : 25;
 
@@ -62,12 +65,14 @@ function App() {
   const [error, setError] = useState<unknown>();
 
   // sound effects
-  const [playClick] = useSound(clickSfx, { volume: 1 });
-  const [playCorrect] = useSound(correctSfx, { volume: 1 });
-  const [playWrong] = useSound(wrongSfx, { volume: 1 });
+  const [playClick] = useSound(clickSfx, { volume: isMuted ? 0 : 1 });
+  const [playCorrect] = useSound(correctSfx, { volume: isMuted ? 0 : 1 });
+  const [playWrong] = useSound(wrongSfx, { volume: isMuted ? 0 : 1 });
   const [playReveal] = useSound(correctSfx, { volume: 0.5 });
-  const [playWin] = useSound(winSfx, { volume: 1 });
-  const [playGame, { stop }] = useSound(gameSfx, { volume: 1 });
+  const [playWin] = useSound(winSfx, { volume: isMuted ? 0 : 1 });
+  const [playGame, {stop}] = useSound(gameSfx, { volume: isMuted ? 0 : 1, loop: true, playbackRate: 1 });
+  const [playNewRecord, { stop: stopNewRecord }] = useSound(newRecordSfx, { volume: isMuted ? 0 : 1 });
+  const [playGameOver, { stop: stopGameOver }] = useSound(gameOverSfx, { volume: isMuted ? 0 : 1 });
 
   if (error) {
     throw error;
@@ -208,16 +213,26 @@ useEffect(() => {
     fetchData();
   }, [gameState]);
 
+  
+  // handle sound effects based on game state
   useEffect(() => {
-    if (gameState === 'FINISHED') {
-      playWin();
-      stop();
-    } else {
+    if (gameState === 'PLAYING') {
       playGame();
+      stopGameOver();
+      stopNewRecord();
+    } else if (gameState === 'FINISHED') {
+      if (getHighestScore() && score > getHighestScore()?.score) {
+        playNewRecord();
+        stop();
+      } else if (score === 0) {
+        playGameOver();
+        stop();
+      } else {
+        playWin();
+        stop();
+      }
     }
-
-    console.log("GameState changed:", gameState);
-  }, [gameState, playGame, playWin]);
+  }, [gameState, playGame, playWin, playGameOver, playNewRecord, stop]);
 
   // Countdown Timer Logic
   useEffect(() => {
@@ -467,6 +482,7 @@ useEffect(() => {
           <div className="space-y-6 text-center">
             <Score 
               words={words}
+              getHighestScore={getHighestScore}
               restartGame={restartGame}
               resetGame={reset}
             />
