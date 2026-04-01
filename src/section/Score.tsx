@@ -116,7 +116,6 @@ const Score = ({ restartGame, resetGame, words, getHighestScore } : Props) => {
               </button>
             </div>
           </div>
-          {/* <Leaderboard /> */}
         </>
       )}
     </main>

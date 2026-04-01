@@ -56,7 +56,7 @@ const Leaderboard = ({ isOpen, onClose }: LeaderboardProps) => {
               </div>
 
               {/* Leaderboard List */}
-              <div className="space-y-2 max-h-100 overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-100 overflow-y-auto scrollbar px-5">
                 {
                   isLoading ? (
                     Array(5).fill(0).map((_, i) => (

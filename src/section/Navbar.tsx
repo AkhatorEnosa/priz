@@ -1,6 +1,6 @@
 import { useState, useRef, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, User as UserIcon, LogOut, VolumeX, Volume2 } from 'lucide-react';
+import { Trophy, User as UserIcon, VolumeX, Volume2 } from 'lucide-react';
 import Logo from '../components/Logo';
 import { useAuth } from '../hooks/useAuth';
 import { useMyScores } from '../hooks/useMyScores';
@@ -136,13 +136,13 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
                 >
                   <Trophy size={16} /> <span>See Global Ranking</span>
                 </button>
-                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-red-400 hover:bg-red-400/10 rounded-lg transition-colors text-left mt-1"
+                {/* <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-bold text-red-400 hover:bg-red-400/10 rounded-lg transition-colors text-left mt-1"
                   onClick={() => {
                     playClick();
                   }}
                 >
                   <LogOut size={16} /> <span>Log out</span>
-                </button>
+                </button> */}
               </motion.div>
             )}
           </AnimatePresence>

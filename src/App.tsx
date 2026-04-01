@@ -68,7 +68,7 @@ function App() {
   const [playClick] = useSound(clickSfx, { volume: isMuted ? 0 : 1 });
   const [playCorrect] = useSound(correctSfx, { volume: isMuted ? 0 : 1 });
   const [playWrong] = useSound(wrongSfx, { volume: isMuted ? 0 : 1 });
-  const [playReveal] = useSound(correctSfx, { volume: 0.5 });
+  const [playReveal] = useSound(correctSfx, { volume: isMuted ? 0 : 1 });
   const [playWin] = useSound(winSfx, { volume: isMuted ? 0 : 1 });
   const [playGame, {stop}] = useSound(gameSfx, { volume: isMuted ? 0 : 1, loop: true, playbackRate: 1 });
   const [playNewRecord, { stop: stopNewRecord }] = useSound(newRecordSfx, { volume: isMuted ? 0 : 1 });
@@ -391,12 +391,14 @@ useEffect(() => {
 
   const restartGame = () => {
     playClick();
+    stopGameOver();
+    stopNewRecord();
+
     setScore(0);
     setTimer(timeSelection)
     setWordsSolved(0);
     setInputValue("");
     setGameState('PLAYING');
-    setWordsCount(5);
     setIndex(0);
     setCorrectAnswer(0)
 
