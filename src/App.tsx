@@ -78,13 +78,13 @@ function App() {
     throw error;
   }
 
-useEffect(() => {
-  // If there's no user session, register them silently
-  if (!user && !loadingUser) {
-    registerAnonymously();
-  }
-}, [user, loadingUser, registerAnonymously]);
-  
+  useEffect(() => {
+    // If there's no user session, register them silently
+    if (!user && !loadingUser) {
+      registerAnonymously();
+    }
+  }, [user, loadingUser, registerAnonymously]);
+    
   // points based on difficulty
   const pointsToAdd = difficulty === 0 ? 100 : difficulty === 1 ? 500 : 1000;
 
@@ -128,7 +128,7 @@ useEffect(() => {
   // get word from api and set it to word state
   const fetchWord = async () => {
     if (gameState === 'PLAYING') {
-      const urlAddon = difficulty === 0 ? `diff=1&length=${getRandomInRange(4, 5)}` : difficulty === 1 ? `diff=3&length=${getRandomInRange(6, 8)}` : `diff=5&length=${getRandomInRange(9, 10)}`;
+      const urlAddon = difficulty === 0 ? `diff=1&length=${getRandomInRange(3, 5)}` : difficulty === 1 ? `diff=3&length=${getRandomInRange(6, 8)}` : `diff=5&length=${getRandomInRange(9, 10)}`;
       setLoading(true);
       try {
         const response = await fetch(`https://random-word-api.herokuapp.com/word?number=${wordsCount}&${urlAddon}`);
@@ -153,6 +153,7 @@ useEffect(() => {
   const loadNextWord = () => {
     setUsedIndices([])
     setInputValue("");
+    
     const nextWord = words[index + 1];
     setWord(nextWord);
     setShuffledWord(shuffleWord(nextWord))
@@ -173,7 +174,7 @@ useEffect(() => {
     if (index === words.length - 1 || wordsCount === 0) {
       
       setGameState('FINISHED');
-      setWordsCount(5); // Reset for next game
+      setWordsCount(words?.length); // Reset for next game
 
       if (score > 0) {
         saveScore({ 
@@ -200,7 +201,6 @@ useEffect(() => {
   // handle show word function
   const revealWord = () => {
     playReveal()
-    // setShuffledWord(word ?? "")
     setShowWord(true)
     setInputValue("")
     setUsedIndices([])
@@ -272,14 +272,14 @@ useEffect(() => {
 
   // disable scrollbar when rules is open
   useEffect(() => {
-    if (showRules) {
+    if (showRules || showLeaderboard) {
       document.body.style.overflow = 'hidden';
       
       return () => {
         document.body.style.overflow = 'unset';
       };
     }
-  }, [showRules])
+  }, [showRules, showLeaderboard])
 
   useEffect(() => {
     // Only trigger once the lengths match to avoid checking every single keystroke
@@ -321,7 +321,7 @@ useEffect(() => {
         setTimeout(() => {
           ;
           setGameState('FINISHED');
-          setWordsCount(5);
+          setWordsCount(words?.length);
           setCorrectAnswer(0);
           setUsedIndices([]);
           setInputValue("");
@@ -368,6 +368,7 @@ useEffect(() => {
   // reset game function
   const reset = () => {
     playClick();
+    
     setScore(0);
     setTimer(0);
     setInputValue("");
@@ -380,10 +381,7 @@ useEffect(() => {
     setWords([])
     setWord("")
     setShuffledWord([])
-    setShowRules(false)
     setShowWord(false)
-    setDifficulty(0)
-    setWordsCount(5)
     setUsedIndices([])
     setError(null)
 
@@ -407,7 +405,6 @@ useEffect(() => {
     setWords([])
     setWord("")
     setShuffledWord([])
-    setShowRules(false)
     setShowWord(false)
     setUsedIndices([])
   }
@@ -485,8 +482,8 @@ useEffect(() => {
             <Score 
               words={words}
               getHighestScore={getHighestScore}
-              restartGame={restartGame}
-              resetGame={reset}
+              exit={reset}
+              restart={restartGame}
             />
           </div>
         }

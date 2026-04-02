@@ -5,12 +5,12 @@ import { AppContext } from '../context/AppContextDefinition';
 
 interface Props {
   words: string[];
-  restartGame: () => void;
-  resetGame: () => void;
+  restart: () => void;
+  exit: () => void;
   getHighestScore: () => { score: number; level: number; solved: number };
 }
 
-const Score = ({ restartGame, resetGame, words, getHighestScore } : Props) => {
+const Score = ({ restart, exit, words, getHighestScore } : Props) => {
   const { gameState, score, wordsSolved, difficulty } = useContext(AppContext);
   const [copied, setCopied] = useState(false);
 
@@ -93,13 +93,13 @@ const Score = ({ restartGame, resetGame, words, getHighestScore } : Props) => {
             {/* Action Buttons */}
             <div className="space-y-3">
               <button 
-                onClick={restartGame}
+                onClick={restart}
                 className="w-full py-5 bg-white text-black font-black text-sm rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest"
               >
                 Restart Session
               </button>
               <button 
-                onClick={resetGame}
+                onClick={exit}
                 className="w-full py-5 bg-[#252932] text-white font-black text-sm rounded-2xl border border-white/5 hover:bg-[#2e333d] transition-all uppercase tracking-widest"
               >
                 Exit to Menu
