@@ -17,6 +17,15 @@ const Score = ({ restart, exit, words, getHighestScore } : Props) => {
   // sound effects
   const [playClick] = useSound(clickSfx, { volume: 1 });
 
+  const checkIfNewHighScore = () => {
+    const highest = getHighestScore();
+    if ( highest == null || score >= highest.score || (score === highest.score && wordsSolved > highest.solved) ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // share logic
   const handleShare = async () => {
     playClick();
@@ -69,7 +78,7 @@ const Score = ({ restart, exit, words, getHighestScore } : Props) => {
               <div className="relative z-10 space-y-10">
                 <div className="text-center">
                   <span className="text-[10px] text-gray-500 font-bold tracking-[0.4em] uppercase">Total Points</span>
-                  <div className={`text-7xl font-black ${getHighestScore() && score >= getHighestScore()?.score ? "text-[#fad410]" : "text-white"} mt-2 tabular-nums`}>
+                  <div className={`text-7xl font-black ${checkIfNewHighScore() ? "text-[#fad410] blink" : "text-white"} mt-2 tabular-nums`}>
                     {score.toLocaleString()}
                   </div>
                 </div>

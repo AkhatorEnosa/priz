@@ -132,7 +132,7 @@ const Playing = ({ score, index, words, difficulty, timer, loading, word, shuffl
                                 flex items-center justify-center rounded-lg transition-all duration-200
                                 ${shuffledWord.length > 8 ? 'w-8 h-12 text-2xl' : 'w-12 h-16 text-4xl'}
                                 font-black uppercase
-                                ${correctAnswer === 2 ? "bg-red-500/20 border-red-500 text-red-500 shake" : 
+                                ${correctAnswer === 2 ? "bg-red-500/20 border-red-500 text-red-500 animate-shake" : 
                                 correctAnswer === 1 ? "bg-green-500/20 border-green-500 text-green-500" : 
                                 char ? "bg-[#255f6f] border-[#114f60] text-white" : "bg-gray-800/50 border-gray-800 text-gray-500"}
                                 ${isActive && !showWord ? "border-teal-400 ring-2 ring-teal-400/20" : ""}
