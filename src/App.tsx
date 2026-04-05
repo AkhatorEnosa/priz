@@ -20,6 +20,7 @@ import gameSfx from './assets/sfx/game-sound.mp3';
 import newRecordSfx from './assets/sfx/new-record.mp3';
 import gameOverSfx from './assets/sfx/game-over.mp3';
 import { AppContext } from './context/AppContextDefinition';
+import { fireConfetti } from './utils/confetti';
 
 function App() {
   // global states
@@ -224,6 +225,8 @@ function App() {
       if (getHighestScore() && score > getHighestScore()?.score) {
         playNewRecord();
         stop();
+
+        fireConfetti(5)
       } else if (score === 0) {
         playGameOver();
         stop();
