@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import useSound from 'use-sound';
 import clickSfx from '../assets/sfx/mouse-click.mp3';
 import { AppContext } from '../context/AppContextDefinition';
+import { fireConfetti } from '../utils/confetti';
 
 interface Props {
   words: string[];
@@ -20,6 +21,7 @@ const Score = ({ restart, exit, words, getHighestScore } : Props) => {
   const checkIfNewHighScore = () => {
     const highest = getHighestScore();
     if ( highest == null || score >= highest.score || (score === highest.score && wordsSolved > highest.solved) ) {
+      fireConfetti(5)
       return true;
     } else {
       return false;

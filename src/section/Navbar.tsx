@@ -33,7 +33,7 @@ export const Navbar = ({ setShowLeaderboard } : {setShowLeaderboard: React.Dispa
     <motion.nav 
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 w-screen px-6 py-4 lg:px-10 lg:py-8 flex justify-between items-center backdrop-blur-sm border-white/5 z-200"
+      className="sticky top-0 w-screen px-6 py-4 lg:px-10 lg:py-8 flex justify-between items-center border-white/5 z-200"
     >
       <Logo />
 
