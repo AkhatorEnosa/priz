@@ -14,11 +14,13 @@ interface StartProps {
     difficulty: number;
     setWordsCount: React.Dispatch<React.SetStateAction<number>>;
     wordsCount: number;
+    wordsLen: number;
+    setWordsLen: React.Dispatch<React.SetStateAction<number>>;
     setGameState: React.Dispatch<React.SetStateAction<string>>;
 }
 
 
-const Start = ({ username, isLoadingScores, getHighestScore, difficulty, wordsCount, setDifficulty, setWordsCount, setShowRules, setGameState }: StartProps) => {
+const Start = ({ username, isLoadingScores, getHighestScore, difficulty, wordsLen, wordsCount, setWordsLen, setDifficulty, setWordsCount, setShowRules, setGameState }: StartProps) => {
   const [playClick] = useSound(clickSfx, { volume: 1 });
 
   return (
@@ -93,16 +95,17 @@ const Start = ({ username, isLoadingScores, getHighestScore, difficulty, wordsCo
                     <button
                       key={count}
                       onClick={() => {
+                        setWordsLen(count);
                         setWordsCount(count);
                         playClick();
                       }}
                       className={`relative flex flex-col items-center transition-all ${
-                        wordsCount === count ? 'text-white scale-110' : 'text-gray-600 hover:text-gray-400'
+                        wordsLen === count ? 'text-white scale-110' : 'text-gray-600 hover:text-gray-400'
                       }`}
                     >
                       <span className="text-xl font-black tracking-tighter">{count}</span>
                       <span className="text-[8px] uppercase font-bold tracking-widest -mt-0.5">Words</span>
-                      {wordsCount === count && (
+                      {wordsLen === count && (
                         <motion.div layoutId="underline" className="absolute -bottom-2 h-1 w-4 bg-teal-400 rounded-full" />
                       )}
                     </button>

@@ -10,6 +10,8 @@ export const AppContext = createContext<{
   difficulty: number;
   setDifficulty: React.Dispatch<React.SetStateAction<number>>;
   wordsCount: number;
+  wordsLen: number;
+  setWordsLen: React.Dispatch<React.SetStateAction<number>>;  
   setWordsCount: React.Dispatch<React.SetStateAction<number>>
   index: number;
   setIndex: React.Dispatch<React.SetStateAction<number>>;
@@ -27,7 +29,9 @@ export const AppContext = createContext<{
   difficulty: 0,
   setDifficulty: () => {},
   wordsCount: 5,
-  setWordsCount: () => {},
+  setWordsCount: () => { },
+  wordsLen: 0,
+  setWordsLen: () => {},
   index: 0,
   setIndex: () => {},
   loading: false,

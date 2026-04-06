@@ -6,7 +6,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [score, setScore] = useState(0);
   const [wordsSolved, setWordsSolved] = useState(0);
   const [difficulty, setDifficulty] = useState(localStorage.getItem("difficulty") ? parseInt(localStorage.getItem("difficulty")!) : 0);
-  const [wordsCount, setWordsCount] = useState(localStorage.getItem("wordsCount") ? parseInt(localStorage.getItem("wordsCount")!) : 5);
+  const [wordsLen, setWordsLen] = useState(localStorage.getItem("wordsLen") ? parseInt(localStorage.getItem("wordsLen")!) : 5);
+  const [wordsCount, setWordsCount] = useState(5);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(localStorage.getItem("isMuted") === "true" ? true : false);
@@ -14,9 +15,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Persist difficulty and wordsCount in localStorage
   useEffect(() => {
     localStorage.setItem('difficulty', difficulty.toString());
-    localStorage.setItem('wordsCount', wordsCount.toString());
+    localStorage.setItem('wordsLen', wordsLen.toString());
     localStorage.setItem('isMuted', isMuted.toString());
-  }, [difficulty, wordsCount, isMuted])
+  }, [difficulty, wordsLen, isMuted])
     
   return (
     <AppContext.Provider value={{
@@ -30,6 +31,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setDifficulty,
       wordsCount,
       setWordsCount,
+      wordsLen,
+      setWordsLen,
       index,
       setIndex,
       loading,

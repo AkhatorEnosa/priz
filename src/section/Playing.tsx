@@ -11,7 +11,6 @@ import { AppContext } from "../context/AppContextDefinition";
 interface PlayingProps {
     score: number;
     index: number;
-    words: string[] | null;
     difficulty: number;
     timer: number;
     loading: boolean;
@@ -22,6 +21,7 @@ interface PlayingProps {
     correctAnswer: number;
     usedIndices: string[];
     wordsCount: number;
+    wordsLen: number;
     pointsToAdd: number;
     setShuffledWord: React.Dispatch<React.SetStateAction<LetterProps[]>>;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
@@ -32,7 +32,7 @@ interface PlayingProps {
     reset: () => void;
 }
 
-const Playing = ({ score, index, words, difficulty, timer, loading, word, shuffledWord, showWord, inputValue, correctAnswer, usedIndices, wordsCount, pointsToAdd, setInputValue, setShuffledWord, handleLetterClick, shuffleWord, revealWord, skipWord, reset }: PlayingProps) => {
+const Playing = ({ score, index, difficulty, timer, loading, word, shuffledWord, showWord, inputValue, correctAnswer, usedIndices, wordsCount, wordsLen, pointsToAdd, setInputValue, setShuffledWord, handleLetterClick, shuffleWord, revealWord, skipWord, reset }: PlayingProps) => {
     const { isMuted } = useContext(AppContext);
     const [playClick] = useSound(clickSfx, { volume: isMuted ? 0 : 1 });
   
@@ -60,7 +60,7 @@ const Playing = ({ score, index, words, difficulty, timer, loading, word, shuffl
                         Score <span className="text-white">{score}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
-                        Count <span className="text-white">{`${index + 1}/${words?.length}`}</span>
+                        Count <span className="text-white">{`${index + 1}/${wordsLen}`}</span>
                     </div>
                     <div className="text-[10px] font-bold tracking-widest text-teal-400 uppercase">
                         Level <span className="text-white">{difficulty === 0 ? 'BEGINNER' : difficulty === 1 ? 'INTERMEDIATE' : 'EXPERT'}</span>

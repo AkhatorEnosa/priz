@@ -30,6 +30,7 @@ function App() {
     wordsSolved, setWordsSolved,
     difficulty, setDifficulty,
     wordsCount, setWordsCount,
+    wordsLen, setWordsLen,
     index, setIndex,
     loading, setLoading,
     isMuted
@@ -450,6 +451,8 @@ function App() {
               difficulty={difficulty}
               setWordsCount={setWordsCount}
               wordsCount={wordsCount}
+              wordsLen={wordsLen}
+              setWordsLen={setWordsLen}
               setGameState={setGameState}
               setShowRules={setShowRules}
               isLoadingScores={isLoadingScores}
@@ -471,11 +474,11 @@ function App() {
             pointsToAdd={pointsToAdd}
             score={score}
             index={index}
-            words={words}
             difficulty={difficulty}
             loading={loading}
             usedIndices={usedIndices}
             wordsCount={wordsCount}
+            wordsLen={wordsLen}
             setShuffledWord={setShuffledWord}
             setInputValue={setInputValue}
             reset={reset}
