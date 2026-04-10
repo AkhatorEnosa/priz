@@ -453,11 +453,11 @@ function App() {
               wordsCount={wordsCount}
               wordsLen={wordsLen}
               setWordsLen={setWordsLen}
-              setGameState={setGameState}
               setShowRules={setShowRules}
               isLoadingScores={isLoadingScores}
               getHighestScore={getHighestScore}
               username={username}
+              startGame={restartGame}
           />
         ) : gameState === 'PLAYING' ? (
           <Playing 

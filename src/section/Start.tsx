@@ -16,11 +16,11 @@ interface StartProps {
     wordsCount: number;
     wordsLen: number;
     setWordsLen: React.Dispatch<React.SetStateAction<number>>;
-    setGameState: React.Dispatch<React.SetStateAction<string>>;
+    startGame: () => void;
 }
 
 
-const Start = ({ username, isLoadingScores, getHighestScore, difficulty, wordsLen, wordsCount, setWordsLen, setDifficulty, setWordsCount, setShowRules, setGameState }: StartProps) => {
+const Start = ({ username, isLoadingScores, startGame, getHighestScore, difficulty, wordsLen, setWordsLen, setDifficulty, setWordsCount, setShowRules }: StartProps) => {
   const [playClick] = useSound(clickSfx, { volume: 1 });
 
   return (
@@ -115,10 +115,7 @@ const Start = ({ username, isLoadingScores, getHighestScore, difficulty, wordsLe
             </div>
             
             <button 
-              onClick={() => {
-                setGameState('PLAYING');
-                playClick()
-              }}
+              onClick={startGame}
               className="group w-full py-6 bg-white text-black font-black text-xl rounded-full shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:shadow-[0_20px_50px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
             >
               START MISSION
