@@ -71,8 +71,8 @@ function App() {
   const [playCorrect] = useSound(correctSfx, { volume: isMuted ? 0 : 1 });
   const [playWrong] = useSound(wrongSfx, { volume: isMuted ? 0 : 1 });
   const [playReveal] = useSound(correctSfx, { volume: isMuted ? 0 : 1 });
-  const [playWin] = useSound(winSfx, { volume: isMuted ? 0 : 1 });
   const [playGame, {stop}] = useSound(gameSfx, { volume: isMuted ? 0 : 1, loop: true, playbackRate: 1 });
+  const [playWin, { stop: stopWin }] = useSound(winSfx, { volume: isMuted ? 0 : 1 });
   const [playNewRecord, { stop: stopNewRecord }] = useSound(newRecordSfx, { volume: isMuted ? 0 : 1 });
   const [playGameOver, { stop: stopGameOver }] = useSound(gameOverSfx, { volume: isMuted ? 0 : 1 });
 
@@ -372,6 +372,10 @@ function App() {
   // reset game function
   const reset = () => {
     playClick();
+    stopWin();
+    stopGameOver();
+    stopNewRecord();
+    stop();
     
     setScore(0);
     setTimer(0);
@@ -393,8 +397,10 @@ function App() {
 
   const restartGame = () => {
     playClick();
+    stopWin();
     stopGameOver();
     stopNewRecord();
+    stop();
 
     setScore(0);
     setTimer(timeSelection)
@@ -403,7 +409,7 @@ function App() {
     setGameState('PLAYING');
     setIndex(0);
     setCorrectAnswer(0)
-
+    setWordsCount(wordsLen)
 
     setLoading(false)
     setWords([])

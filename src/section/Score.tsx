@@ -90,12 +90,20 @@ const Score = ({ restart, exit, words, getHighestScore } : Props) => {
                       {Math.floor((wordsSolved/words.length) * 100) + "%"}
                     </span>
                   </div>
-                  <div className="w-[1px] bg-white/5" />
+                  <div className="w-1 bg-white/5" />
                   <div className="text-center">
                     <span className="text-[9px] text-gray-500 font-bold tracking-widest uppercase block">Solved</span>
                     <span className="text-xl font-bold text-teal-400">{wordsSolved + "/" + words.length}</span>
                   </div>
                 </div>
+
+                <span className={`w-fit py-1 px-2 uppercase mt-1 text-[8px] font-bold rounded-full ${
+                  difficulty === 0 ? "bg-green-400/10 border border-green-500/50 text-green-500" : 
+                  difficulty === 1 ? "bg-blue-400/10 border border-blue-500/50 text-blue-500" : 
+                  "bg-orange-400/10 border border-orange-500/50 text-orange-500"
+                }`}>
+                  {difficulty === 0 ? "Beginner" : difficulty === 1 ? "Intermediate" : "Expert"}
+                </span>
               </div>
             </div>
 

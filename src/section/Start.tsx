@@ -4,6 +4,8 @@ import { DIFFICULTY_LIST } from '../constant/difficulty';
 import { motion } from 'framer-motion';
 import useSound from 'use-sound';
 import clickSfx from '../assets/sfx/mouse-click.mp3';
+import { useContext } from 'react';
+import { AppContext } from '../context/AppContextDefinition';
 
 interface StartProps {
     setShowRules: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,7 +23,8 @@ interface StartProps {
 
 
 const Start = ({ username, isLoadingScores, startGame, getHighestScore, difficulty, wordsLen, setWordsLen, setDifficulty, setWordsCount, setShowRules }: StartProps) => {
-  const [playClick] = useSound(clickSfx, { volume: 1 });
+  const { isMuted } = useContext(AppContext);
+  const [playClick] = useSound(clickSfx, { volume: isMuted ? 0 : 1 });
 
   return (
     

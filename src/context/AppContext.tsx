@@ -7,7 +7,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [wordsSolved, setWordsSolved] = useState(0);
   const [difficulty, setDifficulty] = useState(localStorage.getItem("difficulty") ? parseInt(localStorage.getItem("difficulty")!) : 0);
   const [wordsLen, setWordsLen] = useState(localStorage.getItem("wordsLen") ? parseInt(localStorage.getItem("wordsLen")!) : 5);
-  const [wordsCount, setWordsCount] = useState(5);
+  const [wordsCount, setWordsCount] = useState(localStorage.getItem("wordsLen") ? parseInt(localStorage.getItem("wordsLen")!) : 5);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(localStorage.getItem("isMuted") === "true" ? true : false);
